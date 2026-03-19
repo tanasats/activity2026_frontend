@@ -21,7 +21,7 @@ const OfficerDashboard = ({ data }) => {
         {/* My Performance */}
         <div className="bg-gradient-to-br from-primary to-indigo-700 p-8 rounded-[2.5rem] text-primary-foreground shadow-xl relative overflow-hidden group">
           <div className="relative z-10">
-            <h4 className="text-primary-foreground/80 font-bold uppercase tracking-widest text-[10px] mb-2">กิจกรรมที่คุณสร้าง</h4>
+            <h4 className="text-primary-foreground/80 font-bold uppercase tracking-widest text-[10px] mb-2">กิจกรรมของฉัน</h4>
             <div className="flex items-end space-x-4">
               <span className="text-6xl font-black">{myStats?.activity_count || 0}</span>
               <span className="text-primary-foreground/70 mb-2 font-bold uppercase text-xs">โครงการ</span>

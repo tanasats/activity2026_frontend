@@ -73,7 +73,7 @@ export default function ActivityDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[600px]">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-6" />
-        <p className="text-muted-foreground font-black uppercase tracking-widest text-xs animate-pulse">
+        <p className="text-muted-foreground font-black uppercase  text-xs animate-pulse">
           กำลังโหลดข้อมูลกิจกรรมที่น่าตื่นเต้น...
         </p>
       </div>
@@ -95,9 +95,9 @@ export default function ActivityDetailPage() {
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-20">
       {/* Top Navigation & Actions */}
       <div className="flex justify-between items-center">
-        <Link href="/activities" className="flex items-center text-muted-foreground hover:text-foreground transition-all group font-black uppercase tracking-widest text-[10px]">
+        <Link href="/activities" className="flex items-center text-muted-foreground hover:text-foreground transition-all group font-black uppercase  text-[10px]">
           <div className="p-2 bg-card border border-border rounded-xl mr-3 group-hover:bg-muted transition-colors">
-            <ChevronLeft size={16} />
+            <ChevronLeft size={20} />
           </div>
           Back to Explorers
         </Link>
@@ -125,7 +125,7 @@ export default function ActivityDetailPage() {
                   e.target.src = 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=2070&auto=format&fit=crop';
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+              {/* <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" /> */}
             </div>
 
             <div className="p-10 relative z-10">
@@ -140,7 +140,7 @@ export default function ActivityDetailPage() {
                 {activity.title}
               </h1>
 
-              <div className="flex flex-wrap gap-6 mb-10 text-muted-foreground font-bold uppercase tracking-widest text-[10px]">
+              <div className="flex flex-wrap gap-6 mb-10 text-muted-foreground font-bold uppercase  text-[10px]">
                 <div className="flex items-center">
                   <Building2 size={16} className="mr-2 text-primary" />
                   {activity.agency_name}
@@ -152,7 +152,7 @@ export default function ActivityDetailPage() {
               </div>
 
               <div className="prose prose-slate dark:prose-invert max-w-none">
-                <h3 className="text-xl font-black text-foreground mb-4 uppercase tracking-widest italic">Description</h3>
+                <h3 className="text-xl font-black text-foreground mb-4 uppercase  italic">Description</h3>
                 <p className="text-muted-foreground leading-relaxed whitespace-pre-line text-lg font-medium">
                   {activity.description}
                 </p>
@@ -161,13 +161,13 @@ export default function ActivityDetailPage() {
               {/* Skills Section */}
               {activity.skills?.length > 0 && (
                 <div className="mt-12">
-                  <h3 className="text-xl font-black text-foreground mb-6 uppercase tracking-widest italic flex items-center">
+                  <h3 className="text-xl font-black text-foreground mb-6 uppercase  italic flex items-center">
                     <Target size={24} className="mr-3 text-indigo-500" /> Future Skills
                   </h3>
                   <div className="flex flex-wrap gap-3">
                     {activity.skills.map((skill) => (
                       <div key={skill.id} className="px-6 py-3 bg-card border border-border rounded-2xl hover:border-primary/50 transition-all group cursor-default">
-                        <p className="text-foreground font-black text-xs uppercase tracking-widest">{skill.skill_name}</p>
+                        <p className="text-foreground font-black text-xs uppercase ">{skill.skill_name}</p>
                         <p className="text-[10px] font-bold text-muted-foreground uppercase group-hover:text-primary transition-colors">{skill.skill_name_en}</p>
                       </div>
                     ))}
@@ -178,12 +178,12 @@ export default function ActivityDetailPage() {
               {/* Attachments Section */}
               {activity.attachments?.length > 0 && (
                 <div className="mt-12 border-t border-border pt-12">
-                  <h3 className="text-xl font-black text-foreground mb-6 uppercase tracking-widest italic flex items-center">
+                  <h3 className="text-xl font-black text-foreground mb-6 uppercase  italic flex items-center">
                     <FileText size={24} className="mr-3 text-emerald-500" /> เอกสารแนบ (Attachments)
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {activity.attachments
-                      .filter(att => att.is_published || (user && (user.role === 'admin' || user.role === 'superadmin' || user.faculty_code === activity.owner_faculty_code)))
+                      .filter(att => att.is_published)
                       .map((att) => (
                         <a
                           key={att.id}
@@ -195,19 +195,18 @@ export default function ActivityDetailPage() {
                           <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
                             <FileText size={80} />
                           </div>
-                          
+
                           <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors mr-4 shrink-0">
-                            {att.is_published ? <FileText size={24} /> : <Lock size={20} className="text-amber-500" />}
+                            <FileText size={24} />
                           </div>
-                          
+
                           <div className="flex-1 min-w-0 pr-4">
-                            <p className="text-foreground font-black text-xs uppercase tracking-widest truncate">{att.display_name}</p>
-                            <div className="flex items-center mt-1 space-x-2 text-[9px] font-bold text-muted-foreground uppercase tracking-widest italic">
+                            <p className="text-foreground font-black text-xs uppercase  truncate">{att.display_name}</p>
+                            <div className="flex items-center mt-1 space-x-2 text-[9px] font-bold text-muted-foreground uppercase  italic">
                               <span>{(att.file_name.split('.').pop() || 'file').toUpperCase()}</span>
-                              {!att.is_published && <span className="text-amber-500 italic">• Private</span>}
                             </div>
                           </div>
-                          
+
                           <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center text-muted-foreground group-hover:bg-primary group-hover:text-white transition-all shrink-0">
                             <Download size={18} />
                           </div>
@@ -243,24 +242,24 @@ export default function ActivityDetailPage() {
                 <div className="p-5 bg-card border border-border rounded-3xl text-center group hover:border-primary/30 transition-all">
                   <Clock size={20} className="mx-auto mb-2 text-primary group-hover:scale-110 transition-transform" />
                   <p className="text-2xl font-black text-foreground">{activity.hours}</p>
-                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">ACT Hours</p>
+                  <p className="text-[10px] font-black text-muted-foreground uppercase ">ACT Hours</p>
                 </div>
                 <div className="p-5 bg-card border border-border rounded-3xl text-center group hover:border-indigo-500/30 transition-all">
                   <Users size={20} className="mx-auto mb-2 text-indigo-500 group-hover:scale-110 transition-transform" />
-                  <p className="text-2xl font-black text-foreground">{activity.max_participants}</p>
-                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Available</p>
+                  <p className="text-2xl font-black text-foreground">{activity.registered_count || 0} / {activity.max_participants}</p>
+                  <p className="text-[10px] font-black text-muted-foreground uppercase ">Enrolled</p>
                 </div>
               </div>
 
               {/* Additional Info */}
               <div className="space-y-4 pt-4 border-t border-border">
-                <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest">
+                <div className="flex items-center justify-between text-xs font-bold uppercase ">
                   <span className="text-muted-foreground flex items-center">
                     <Wallet size={16} className="mr-2 text-emerald-500" /> Budget Source
                   </span>
                   <span className="text-foreground">{activity.budget_source_name}</span>
                 </div>
-                <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest">
+                <div className="flex items-center justify-between text-xs font-bold uppercase ">
                   <span className="text-muted-foreground flex items-center">
                     <ShieldAlert size={16} className="mr-2 text-amber-500" /> Loaner Hours
                   </span>
@@ -271,15 +270,19 @@ export default function ActivityDetailPage() {
               {/* Registration Action */}
               <div className="pt-6">
                 <Button
-                  variant={user?.role === 'student' ? 'primary' : 'outline'}
+                  variant={user?.role === 'student' ? (activity.max_participants > 0 && activity.registered_count >= activity.max_participants ? 'outline' : 'primary') : 'outline'}
                   className="w-full py-5 rounded-[1.5rem] font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                   onClick={handleRegister}
-                  disabled={user?.role !== 'student' || registering}
+                  disabled={user?.role !== 'student' || registering || (activity.max_participants > 0 && activity.registered_count >= activity.max_participants)}
                 >
-                  {registering ? 'Processing...' : (user?.role === 'student' ? 'Register Now' : 'Sign in as Student')}
+                  {registering ? 'Processing...' : (
+                    user?.role === 'student'
+                      ? (activity.max_participants > 0 && activity.registered_count >= activity.max_participants ? 'Activity Full' : 'Register Now')
+                      : 'Sign in as Student'
+                  )}
                 </Button>
                 {activity.allowed_faculties?.length > 0 && (
-                  <p className="text-[9px] text-center mt-4 text-muted-foreground font-black uppercase tracking-widest flex items-center justify-center italic">
+                  <p className="text-[9px] text-center mt-4 text-muted-foreground font-black uppercase  flex items-center justify-center italic">
                     <CheckCircle2 size={12} className="mr-2 text-primary" />
                     Restricted: {activity.allowed_faculties.map(f => f.faculty_name).join(', ')}
                   </p>

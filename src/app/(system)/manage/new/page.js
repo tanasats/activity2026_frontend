@@ -121,6 +121,19 @@ export default function NewActivityPage() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // 1. Validate File Type (Images only)
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('กรุณาเลือกไฟล์ภาพเท่านั้น (JPEG, PNG, WEBP)');
+        return;
+      }
+
+      // 2. Validate File Size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('ไฟล์ภาพต้องมีขนาดไม่เกิน 5MB');
+        return;
+      }
+
       setFormData(prev => ({ ...prev, coverImage: file }));
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -176,7 +189,7 @@ export default function NewActivityPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[600px]">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mb-6" />
-        <p className="text-muted-foreground font-black uppercase tracking-widest text-xs animate-pulse font-sarabun">
+        <p className="text-muted-foreground font-black uppercase  text-xs animate-pulse font-sarabun">
           กำลังเตรียมข้อมูลสำหรับการจัดการกิจกรรม...
         </p>
       </div>
@@ -188,7 +201,7 @@ export default function NewActivityPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <Link href="/manage" className="flex items-center text-muted-foreground hover:text-foreground transition-all group font-black uppercase tracking-widest text-[10px] mb-2">
+          <Link href="/manage" className="flex items-center text-muted-foreground hover:text-foreground transition-all group font-black uppercase  text-[10px] mb-2">
             <ChevronLeft size={14} className="mr-1 group-hover:-translate-x-1 transition-transform" />
             Back to Management
           </Link>
@@ -220,7 +233,7 @@ export default function NewActivityPage() {
               <LayoutDashboard size={60} />
             </div>
 
-            <h3 className="text-lg font-black text-foreground mb-8 uppercase tracking-widest italic flex items-center">
+            <h3 className="text-lg font-black text-foreground mb-8 uppercase  italic flex items-center">
               <span className="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 flex items-center justify-center mr-3 text-sm not-italic">1</span>              ภาพหน้าปกกิจกรรม
             </h3>
 
@@ -247,7 +260,7 @@ export default function NewActivityPage() {
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <p className="text-white font-black uppercase tracking-widest text-xs">เปลี่ยนรูปภาพ</p>
+                        <p className="text-white font-black uppercase  text-xs">เปลี่ยนรูปภาพ</p>
                       </div>
                     </div>
                   ) : (
@@ -256,7 +269,7 @@ export default function NewActivityPage() {
                         <ImageIcon size={32} />
                       </div>
                       <div className="text-center">
-                        <p className="text-foreground font-black uppercase tracking-widest text-xs">คลิกเพื่อเลือกไฟล์ภาพ</p>
+                        <p className="text-foreground font-black uppercase  text-xs">คลิกเพื่อเลือกไฟล์ภาพ</p>
                         <p className="text-muted-foreground text-[10px] mt-1 uppercase font-bold tracking-wider">Maximum file size: 5MB</p>
                       </div>
                     </div>
@@ -272,7 +285,7 @@ export default function NewActivityPage() {
               <LayoutDashboard size={60} />
             </div>
 
-            <h3 className="text-lg font-black text-foreground mb-8 uppercase tracking-widest italic flex items-center">
+            <h3 className="text-lg font-black text-foreground mb-8 uppercase  italic flex items-center">
               <span className="w-8 h-8 rounded-lg bg-green-500/10 text-green-500 flex items-center justify-center mr-3 text-sm not-italic">2</span>
               ข้อมูลพื้นฐานกิจกรรม
             </h3>
@@ -383,7 +396,7 @@ export default function NewActivityPage() {
               <Target size={60} />
             </div>
 
-            <h3 className="text-lg font-black text-foreground mb-8 uppercase tracking-widest italic flex items-center">
+            <h3 className="text-lg font-black text-foreground mb-8 uppercase  italic flex items-center">
               <span className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center mr-3 text-sm not-italic">3</span>
               ทักษะและผลการเรียนรู้
             </h3>
@@ -404,7 +417,7 @@ export default function NewActivityPage() {
                     )}
                   >
                     <div className="relative z-10">
-                      {/* <p className="text-[10px] font-black uppercase tracking-widest mb-1 opacity-70">
+                      {/* <p className="text-[10px] font-black uppercase  mb-1 opacity-70">
                         {s.skill_name_en}
                       </p> */}
                       <p className="text-xs font-bold leading-tight">
@@ -426,7 +439,7 @@ export default function NewActivityPage() {
               <ShieldCheck size={60} />
             </div>
 
-            <h3 className="text-lg font-black text-foreground mb-8 uppercase tracking-widest italic flex items-center">
+            <h3 className="text-lg font-black text-foreground mb-8 uppercase  italic flex items-center">
               <span className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center mr-3 text-sm not-italic">4</span>
               ข้อกำหนดและสิทธิ์การสมัคร
             </h3>
@@ -486,7 +499,7 @@ export default function NewActivityPage() {
 
 
             <div className="flex items-center justify-between mb-8">
-              <h3 className="text-lg font-black text-foreground uppercase tracking-widest italic flex items-center">
+              <h3 className="text-lg font-black text-foreground uppercase  italic flex items-center">
                 <span className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center mr-3 text-sm not-italic">5</span>
                 เอกสารแนบ (Attachments)
               </h3>
@@ -498,12 +511,29 @@ export default function NewActivityPage() {
                   input.multiple = true;
                   input.onchange = (e) => {
                     const files = Array.from(e.target.files);
-                    const newAtts = files.map(file => ({
-                      file,
-                      displayName: file.name,
-                      isPublished: true
-                    }));
-                    setFormData({ ...formData, attachments: [...formData.attachments, ...newAtts] });
+                    const allowedExts = ['jpeg', 'jpg', 'png', 'webp', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv'];
+                    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+
+                    const validFiles = [];
+                    for (const file of files) {
+                      const ext = file.name.split('.').pop().toLowerCase();
+                      if (!allowedExts.includes(ext)) {
+                        toast.error(`ไฟล์ ${file.name} ไม่รองรับประเภทนี้`);
+                        continue;
+                      }
+                      if (file.size > MAX_SIZE) {
+                        toast.error(`ไฟล์ ${file.name} มีขนาดใหญ่เกินไป (จำกัด 10MB)`);
+                        continue;
+                      }
+                      validFiles.push({
+                        file,
+                        displayName: file.name,
+                        isPublished: true
+                      });
+                    }
+                    if (validFiles.length > 0) {
+                      setFormData({ ...formData, attachments: [...formData.attachments, ...validFiles] });
+                    }
                   };
                   input.click();
                 }}
@@ -517,7 +547,7 @@ export default function NewActivityPage() {
             <div className="space-y-4">
               {formData.attachments.length === 0 ? (
                 <div className="text-center py-12 border-2 border-dashed border-border rounded-[2.5rem] bg-muted/10 group-hover:bg-muted/20 transition-all">
-                  <p className="text-xs font-black text-muted-foreground uppercase tracking-widest italic">ยังไม่มีเอกสารแนบในกิจกรรมนี้</p>
+                  <p className="text-xs font-black text-muted-foreground uppercase  italic">ยังไม่มีเอกสารแนบในกิจกรรมนี้</p>
                   <p className="text-[10px] text-muted-foreground mt-2 font-bold uppercase tracking-wider opacity-60">คลิกที่ปุ่มด้านบนเพื่อเลือกไฟล์ (PDF, Word, Excel, ฯลฯ)</p>
                 </div>
               ) : (
@@ -540,7 +570,7 @@ export default function NewActivityPage() {
                           className="text-slate-900 w-full bg-muted/20 border-none focus:ring-0 p-0 text-sm font-black text-foreground placeholder:text-muted-foreground/30 focus:bg-transparent transition-colors"
                           placeholder="กำหนดชื่อแสดงผลเอกสาร..."
                         />
-                        <div className="flex items-center space-x-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest italic">
+                        <div className="flex items-center space-x-2 text-[10px] font-bold text-muted-foreground uppercase  italic">
                           <span className="truncate max-w-[200px]">{att.file.name}</span>
                           <span>•</span>
                           <span>{(att.file.size / 1024).toFixed(1)} KB</span>
@@ -592,7 +622,7 @@ export default function NewActivityPage() {
         <div className="space-y-8">
           {/* Section 4: Timeline */}
           <Card className="p-8 border-border bg-card">
-            <h3 className="text-sm font-black text-foreground mb-8 uppercase tracking-widest italic flex items-center">
+            <h3 className="text-sm font-black text-foreground mb-8 uppercase  italic flex items-center">
               <Calendar className="mr-3 text-primary" size={20} />
               กำหนดการจัดกิจกรรม
             </h3>
@@ -654,7 +684,7 @@ export default function NewActivityPage() {
 
           {/* Section 6: Visibility */}
           <Card className="p-8 border-border bg-card">
-            <h3 className="text-sm font-black text-foreground mb-8 uppercase tracking-widest italic flex items-center">
+            <h3 className="text-sm font-black text-foreground mb-8 uppercase  italic flex items-center">
               <Globe className="mr-3 text-sky-500" size={20} />
               การมองเห็นกลุ่มเป้าหมาย
             </h3>
@@ -694,7 +724,7 @@ export default function NewActivityPage() {
 
           {/* Section 6: Credits & Hours */}
           <Card className="p-8 border-border bg-card">
-            <h3 className="text-sm font-black text-foreground mb-8 uppercase tracking-widest italic flex items-center">
+            <h3 className="text-sm font-black text-foreground mb-8 uppercase  italic flex items-center">
               <Clock className="mr-3 text-indigo-500" size={20} />
               หน่วยกิตและชั่วโมง
             </h3>
@@ -733,7 +763,7 @@ export default function NewActivityPage() {
 
           {/* Section 6: Budget */}
           <Card className="p-8 border-border bg-card">
-            <h3 className="text-sm font-black text-foreground mb-8 uppercase tracking-widest italic flex items-center">
+            <h3 className="text-sm font-black text-foreground mb-8 uppercase  italic flex items-center">
               <Wallet className="mr-3 text-emerald-500" size={20} />
               งบประมาณโครงการ
             </h3>

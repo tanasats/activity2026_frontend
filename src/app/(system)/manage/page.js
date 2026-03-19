@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import toast from 'react-hot-toast';
 import {
@@ -28,7 +29,9 @@ import {
   RotateCcw,
   InfoIcon,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Edit2,
+  Trash2
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -37,6 +40,11 @@ export default function ManagementPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const { user } = useAuthStore();
+
+  // Deletion State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [activityToDelete, setActivityToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Pagination & Filter States
   const [searchQuery, setSearchQuery] = useState('');
@@ -132,6 +140,27 @@ export default function ManagementPage() {
       });
     } catch (error) {
       toast.error(error.response?.data?.message || 'เปลี่ยนสถานะไม่สำเร็จ');
+    }
+  };
+
+  const handleDelete = (id) => {
+    setActivityToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!activityToDelete) return;
+    try {
+      setDeleting(true);
+      await activityService.deleteActivity(activityToDelete);
+      toast.success('ลบกิจกรรมสำเร็จ');
+      fetchActivities();
+      setIsDeleteModalOpen(false);
+      setActivityToDelete(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'ไม่สามารถลบกิจกรรมได้');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -253,6 +282,7 @@ export default function ManagementPage() {
                 <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider">ID / Code</th>
                 <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider">Activity Description</th>
                 <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider text-center">Hours</th>
+                <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider text-center">Enrollment</th>
                 <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider">Visibility</th>
                 <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider">Status</th>
                 <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider text-right">Actions</th>
@@ -284,14 +314,37 @@ export default function ManagementPage() {
                     <p className="text-[10px] text-muted-foreground font-bold mt-1 uppercase italic">{item.owner_faculty_name}</p>
                   </td>
                   <td className="px-8 py-6">
-                    <p className="font-bold text-foreground group-hover:text-primary transition-colors">{item.title}</p>
+                    <p className="font-bold text-foreground group-hover:text-primary transition-colors">
+                      <Link href={`/activities/${item.id}`}>{item.title}</Link>
+                    </p>
                     <div className="flex items-center space-x-2 mt-1">
                       <span className="text-[10px] font-medium text-muted-foreground uppercase">{item.agency_name}</span>
                       <span className="text-[10px] text-muted-foreground">•</span>
                       <span className="text-[10px] font-medium text-muted-foreground uppercase">{item.type_name}</span>
                     </div>
                   </td>
-                  <td className="px-8 py-6 text-center font-black text-foreground">{item.hours}</td>
+                  <td className="px-8 py-6 text-center text-foreground">{item.hours}</td>
+                  <td className="px-8 py-6 text-center">
+                    <div className="flex flex-col items-center">
+                      <span className={cn(
+                        "text-sm tracking-tight",
+                        item.registered_count >= item.max_participants && item.max_participants > 0 ? "text-red-500" : "text-foreground"
+                      )}>
+                        {item.registered_count || 0} / {item.max_participants || 0}
+                      </span>
+                      {item.max_participants > 0 && (
+                        <div className="w-16 h-1 bg-muted rounded-full mt-1 overflow-hidden">
+                          <div
+                            className={cn(
+                              "h-full transition-all duration-500",
+                              item.registered_count >= item.max_participants ? "bg-red-500" : "bg-primary"
+                            )}
+                            style={{ width: `${Math.min(100, ((item.registered_count || 0) / item.max_participants) * 100)}%` }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-8 py-6">
                     <button
                       disabled={!(user?.role === 'admin' || user?.role === 'superadmin' || (user?.role === 'officer' && item.owner_faculty_code === user.faculty_code))}
@@ -312,17 +365,40 @@ export default function ManagementPage() {
                     </Badge>
                   </td>
                   <td className="px-8 py-6 text-right space-x-2">
-                    {user?.role !== 'student' && item.status === 'ขออนุมัติ' && (user?.role === 'admin' || user?.role === 'superadmin') && (
-                      <button
-                        onClick={() => handleApprove(item.id)}
-                        className="px-4 py-2 bg-emerald-500/10 text-emerald-600 rounded-xl text-[10px] font-black uppercase hover:bg-emerald-500 hover:text-white transition-all shadow-sm"
-                      >
-                        Approve
-                      </button>
-                    )}
-                    <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
+                    <div className='flex flex-between'>
+                      {user?.role !== 'student' && item.status === 'ขออนุมัติ' && (user?.role === 'admin' || user?.role === 'superadmin') && (
+                        <button
+                          onClick={() => handleApprove(item.id)}
+                          className="px-4 py-2 bg-emerald-500/10 text-emerald-600 rounded-xl text-[10px] font-black uppercase hover:bg-emerald-500 hover:text-white transition-all shadow-sm"
+                        >
+                          Approve
+                        </button>
+                      )}
+
+                      {(user?.role === 'admin' || user?.role === 'superadmin' || (user?.role === 'officer' && item.owner_faculty_code === user.faculty_code)) && (
+                        <Link href={`/manage/${item.id}/edit`}>
+                          <button className="p-2 text-muted-foreground hover:text-primary transition-colors" title="แก้ไขกิจกรรม">
+                            <Edit2 size={18} />
+                          </button>
+                        </Link>
+                      )}
+
+                      {(user?.role === 'admin' || user?.role === 'superadmin' || (user?.role === 'officer' && parseInt(item.creator_id) === parseInt(user?.id))) && (
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          className="p-2 text-muted-foreground hover:text-red-500 transition-colors"
+                          title="ลบกิจกรรม"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      )}
+
+                      {/* <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
                       <Settings2 size={18} />
-                    </button>
+                    </button> */}
+
+                    </div>
+
                   </td>
                 </tr>
               ))}
@@ -333,7 +409,7 @@ export default function ManagementPage() {
         {/* Pagination UI */}
         {totalItems > 0 && (
           <div className="px-8 py-6 border-t border-border bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+            <div className="text-sm text-muted-foreground">
               แสดง {activities.length} จากทั้งหมด {totalItems} รายการ
             </div>
             <div className="flex items-center space-x-2">
@@ -394,6 +470,19 @@ export default function ManagementPage() {
           </div>
         )}
       </Card>
+
+      {/* Custom Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="ยืนยันการลบกิจกรรม"
+        message="คุณต้องการลบกิจกรรมนี้ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้และข้อมูลที่เกี่ยวข้องทั้งหมดจะถูกลบออกจากระบบ"
+        confirmText="ยืนยันการลบ"
+        cancelText="ยกเลิก"
+        type="warning"
+        loading={deleting}
+      />
     </div>
   );
 }
