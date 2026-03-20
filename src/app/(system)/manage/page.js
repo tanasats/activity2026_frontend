@@ -50,7 +50,7 @@ export default function ManagementPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filterYear, setFilterYear] = useState('2569');
-  const [filterSemester, setFilterSemester] = useState('1');
+  const [filterSemester, setFilterSemester] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
@@ -255,7 +255,7 @@ export default function ManagementPage() {
                 <option value="all">ทุกสถานะ</option>
                 <option value="ขออนุมัติ">ขออนุมัติ</option>
                 <option value="ดำเนินการ">ดำเนินการ</option>
-                <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+                <option value="ปิดกิจกรรม">เสร็จสิ้น</option>
               </select>
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
                 <ShieldCheck size={14} />
@@ -360,7 +360,7 @@ export default function ManagementPage() {
                     </button>
                   </td>
                   <td className="px-8 py-6">
-                    <Badge variant={item.status === 'ขออนุมัติ' ? 'warning' : 'success'}>
+                    <Badge variant={item.status === 'ขออนุมัติ' ? 'warning' : (item.status === 'ปิดกิจกรรม' ? 'slate' : 'success')}>
                       {item.status}
                     </Badge>
                   </td>

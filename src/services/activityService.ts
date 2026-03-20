@@ -42,6 +42,11 @@ export const activityService = {
     return response.data;
   },
 
+  updateStatus: async (id: string | number, status: string) => {
+    const response = await axiosInstance.patch(`/activities/${id}/status`, { status });
+    return response.data;
+  },
+
   updateAttachmentVisibility: async (attachmentId: string | number, isPublished: boolean) => {
     const response = await axiosInstance.patch(`/activities/attachments/${attachmentId}/visibility`, { isPublished });
     return response.data;

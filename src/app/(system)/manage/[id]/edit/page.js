@@ -22,6 +22,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 import { masterDataService } from '@/services/masterDataService';
 import { activityService } from '@/services/activityService';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -39,6 +40,11 @@ export default function EditActivityPage() {
   const fileInputRef = useRef(null);
   const [previewImage, setPreviewImage] = useState(null);
   const [existingCoverImage, setExistingCoverImage] = useState(null);
+  
+  // Status Modal State
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [newStatusPending, setNewStatusPending] = useState(null);
+  const [statusLoading, setStatusLoading] = useState(false);
 
   // Master Data
   const [masterData, setMasterData] = useState({
@@ -72,6 +78,8 @@ export default function EditActivityPage() {
     faculties: [], // Restrictions
     coverImage: null,
     publishStatus: 'private',
+    status: 'ขออนุมัติ',
+    creatorId: null,
     attachments: [], // New attachments to upload
     existingAttachments: [] // Already uploaded attachments
   });
@@ -136,6 +144,8 @@ export default function EditActivityPage() {
             faculties: activity.allowed_faculties?.map(f => f.faculty_code) || [],
             coverImage: null, // Reset to null, only set if changing
             publishStatus: activity.publish_status,
+            status: activity.status,
+            creatorId: activity.creator_id,
             attachments: [],
             existingAttachments: activity.attachments || []
           });
@@ -228,6 +238,27 @@ export default function EditActivityPage() {
     }
   };
 
+  const handleStatusChange = (newStatus) => {
+    setNewStatusPending(newStatus);
+    setIsStatusModalOpen(true);
+  };
+
+  const confirmStatusChange = async () => {
+    try {
+      setStatusLoading(true);
+      await activityService.updateStatus(id, newStatusPending);
+      setFormData(prev => ({ ...prev, status: newStatusPending }));
+      toast.success(`เปลี่ยนสถานะเป็น ${newStatusPending} สำเร็จ`);
+      setIsStatusModalOpen(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'เปลี่ยนสถานะไม่สำเร็จ');
+    } finally {
+      setStatusLoading(false);
+    }
+  };
+
+  const isEditable = user?.role === 'admin' || user?.role === 'superadmin' || (user?.role === 'officer' && formData.status !== 'ปิดกิจกรรม');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -282,30 +313,87 @@ export default function EditActivityPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
-          <Link href="/manage" className="flex items-center text-muted-foreground hover:text-foreground transition-all group font-black uppercase  text-[10px] mb-2">
+          <Link href="/manage" className="flex items-center text-muted-foreground hover:text-foreground transition-all group font-black uppercase text-[10px] mb-2">
             <ChevronLeft size={14} className="mr-1 group-hover:-translate-x-1 transition-transform" />
             Back to Management
           </Link>
-          <h1 className="text-4xl font-black text-foreground leading-none flex items-center">
-            <Save className="mr-3 text-primary" size={32} />
-            แก้ไขข้อมูลกิจกรรม
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-4xl font-black text-foreground leading-none flex items-center">
+              <Save className="mr-3 text-primary" size={32} />
+              แก้ไขข้อมูลกิจกรรม
+            </h1>
+            <Badge className={cn(
+              "rounded-lg px-3 py-1 text-[10px] font-black uppercase",
+              formData.status === 'ดำเนินการ' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" :
+                formData.status === 'ปิดกิจกรรม' ? "bg-red-500/10 text-red-600 border-red-500/20" :
+                  "bg-amber-500/10 text-amber-600 border-amber-500/20"
+            )}>
+              {formData.status}
+            </Badge>
+          </div>
           <p className="text-muted-foreground text-sm font-medium">แก้ไขรายละเอียดและเงื่อนไขของกิจกรรม</p>
         </div>
         <div className="flex items-center space-x-3">
+          {/* Status Action Buttons */}
+          {user?.role === 'officer' && 
+           formData.status !== 'ปิดกิจกรรม' && 
+           parseInt(formData.creatorId) === parseInt(user?.id) && (
+            <Button
+              variant="outline"
+              onClick={() => handleStatusChange('ปิดกิจกรรม')}
+              className="rounded-xl px-6 border-red-500 text-red-600 hover:bg-red-50"
+            >
+              ปิดกิจกรรม
+            </Button>
+          )}
+
+          {(user?.role === 'admin' || user?.role === 'superadmin') && (
+            <>
+              {formData.status !== 'ดำเนินการ' && (
+                <Button
+                  variant="outline"
+                  onClick={() => handleStatusChange('ดำเนินการ')}
+                  className="rounded-xl px-6 border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                >
+                  เปิดดำเนินการ
+                </Button>
+              )}
+              {formData.status !== 'ปิดกิจกรรม' && (
+                <Button
+                  variant="outline"
+                  onClick={() => handleStatusChange('ปิดกิจกรรม')}
+                  className="rounded-xl px-6 border-red-500 text-red-600 hover:bg-red-50"
+                >
+                  ปิดกิจกรรม
+                </Button>
+              )}
+            </>
+          )}
+
           <Button variant="outline" onClick={() => router.back()} className="rounded-xl px-6">ยกเลิก</Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={saving}
-            className="rounded-xl px-6 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90"
-          >
-            <Save size={18} className="mr-2 inline" />
-            {saving ? 'กำลังอัปเดต...' : 'บันทึกการแก้ไข'}
-          </Button>
+          {isEditable && (
+            <Button
+              onClick={handleSubmit}
+              disabled={saving}
+              className="rounded-xl px-6 shadow-lg shadow-primary/20 bg-primary hover:bg-primary/90"
+            >
+              <Save size={18} className="mr-2 inline" />
+              {saving ? 'กำลังอัปเดต...' : 'บันทึกการแก้ไข'}
+            </Button>
+          )}
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {!isEditable && (
+        <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-center gap-3 text-red-600 animate-in fade-in slide-in-from-top-2 duration-500">
+          <Lock size={20} />
+          <p className="text-sm font-bold italic uppercase">
+            กิจกรรมนี้ถูกปิดแล้ว ไม่สามารถทำการแก้ไขข้อมูลได้ หากต้องการแก้ไขกรุณาติดต่อ Admin
+          </p>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className={cn("grid grid-cols-1 lg:grid-cols-3 gap-8", !isEditable && "opacity-60 pointer-events-none select-none")}>
         {/* Main Content Area */}
         <div className="lg:col-span-2 space-y-8">
           {/* Section 1: Cover Image */}
@@ -628,16 +716,33 @@ export default function EditActivityPage() {
               <Globe className="mr-3 text-sky-500" size={20} />
               การมองเห็น
             </h3>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mb-4">
               <button
-                type="button" onClick={() => setFormData({ ...formData, publishStatus: 'public' })}
-                className={cn("flex-1 py-3 rounded-xl text-[10px] font-black border transition-all", formData.publishStatus === 'public' ? "bg-sky-500 text-white border-sky-500" : "bg-muted/30 text-muted-foreground")}
+                type="button" 
+                disabled={formData.status === 'ขออนุมัติ'}
+                onClick={() => setFormData({ ...formData, publishStatus: 'public' })}
+                className={cn(
+                  "flex-1 py-3 rounded-xl text-[10px] font-black border transition-all", 
+                  formData.publishStatus === 'public' ? "bg-sky-500 text-white border-sky-500" : "bg-muted/30 text-muted-foreground",
+                  formData.status === 'ขออนุมัติ' && "opacity-50 cursor-not-allowed"
+                )}
               >PUBLIC</button>
               <button
-                type="button" onClick={() => setFormData({ ...formData, publishStatus: 'private' })}
-                className={cn("flex-1 py-3 rounded-xl text-[10px] font-black border transition-all", formData.publishStatus === 'private' ? "bg-slate-700 text-white border-slate-700" : "bg-muted/30 text-muted-foreground")}
+                type="button" 
+                disabled={formData.status === 'ขออนุมัติ'}
+                onClick={() => setFormData({ ...formData, publishStatus: 'private' })}
+                className={cn(
+                  "flex-1 py-3 rounded-xl text-[10px] font-black border transition-all", 
+                  formData.publishStatus === 'private' ? "bg-slate-700 text-white border-slate-700" : "bg-muted/30 text-muted-foreground",
+                  formData.status === 'ขออนุมัติ' && "opacity-50 cursor-not-allowed"
+                )}
               >PRIVATE</button>
             </div>
+            {formData.status === 'ขออนุมัติ' && (
+              <p className="text-[10px] text-amber-600 font-bold italic italic-none">
+                * กิจกรรมที่รออนุมัติจะต้องเป็น Private เท่านั้น
+              </p>
+            )}
           </Card>
 
           {/* Credits */}
@@ -659,6 +764,19 @@ export default function EditActivityPage() {
           </Card>
         </div>
       </form>
+
+      {/* Status Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+        onConfirm={confirmStatusChange}
+        title="ยืนยันการเปลี่ยนสถานะ"
+        message={`คุณแน่ใจหรือไม่ว่าต้องการเปลี่ยนสถานะกิจกรรมเป็น "${newStatusPending}"?`}
+        confirmText={newStatusPending === 'ปิดกิจกรรม' ? "ยืนยันปิดกิจกรรม" : "ยืนยันการเปลี่ยนสถานะ"}
+        cancelText="ยกเลิก"
+        type={newStatusPending === 'ปิดกิจกรรม' ? "warning" : "info"}
+        loading={statusLoading}
+      />
     </div>
   );
 }
