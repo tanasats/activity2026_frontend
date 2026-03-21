@@ -1,10 +1,10 @@
 'use client';
 
 import { useAuthStore } from '@/store/useAuthStore';
-import { 
-  Trophy, 
-  Clock, 
-  CheckCircle2, 
+import {
+  Trophy,
+  Clock,
+  CheckCircle2,
   ArrowRight,
   PlusCircle,
   Layout,
@@ -28,7 +28,7 @@ const StudentDashboard = ({ data }) => {
             <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Count</span>
           </div>
           <p className="text-3xl font-black text-foreground">{summary.total_activities || 0}</p>
-          <p className="text-sm font-medium text-muted-foreground mt-1">กิจกรรมที่เข้าร่วมแล้ว</p>
+          <p className="text-sm font-medium text-muted-foreground mt-1">กิจกรรมที่ผ่าน (Pass)</p>
         </div>
 
         <div className="bg-card p-6 rounded-[2.5rem] border border-border shadow-sm hover:shadow-md transition-shadow group">
@@ -39,7 +39,7 @@ const StudentDashboard = ({ data }) => {
             <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Hours</span>
           </div>
           <p className="text-3xl font-black text-foreground">{summary.total_hours || 0}</p>
-          <p className="text-sm font-medium text-muted-foreground mt-1">ชั่วโมงรวมสะสม</p>
+          <p className="text-sm font-medium text-muted-foreground mt-1">ชั่วโมงสะสม (เฉพาะที่ผ่าน)</p>
         </div>
 
         <div className="bg-card p-6 rounded-[2.5rem] border border-border shadow-sm hover:shadow-md transition-shadow group">
@@ -50,7 +50,7 @@ const StudentDashboard = ({ data }) => {
             <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Credits</span>
           </div>
           <p className="text-3xl font-black text-foreground">{summary.total_credits || 0}</p>
-          <p className="text-sm font-medium text-muted-foreground mt-1">หน่วยกิตรวมที่ได้รับ</p>
+          <p className="text-sm font-medium text-muted-foreground mt-1">หน่วยกิตรวม (เฉพาะที่ผ่าน)</p>
         </div>
       </div>
 
@@ -69,19 +69,32 @@ const StudentDashboard = ({ data }) => {
           <div className="divide-y divide-border">
             {registrations && registrations.length > 0 ? (
               registrations.map((reg) => (
-                <div key={reg.id} className="p-4 hover:bg-muted/50 transition-colors flex justify-between items-center group">
-                  <div>
-                    <p className="font-bold text-foreground group-hover:text-primary transition-colors">{reg.title}</p>
+                <Link
+                  key={reg.id}
+                  href={`/registrations/${reg.id}`}
+                  className="p-4 hover:bg-muted/50 transition-colors flex justify-between items-center group cursor-pointer"
+                >
+                  <div className="flex-1 mr-4">
+                    <p className="font-bold text-foreground group-hover:text-primary transition-colors line-clamp-1">{reg.title}</p>
                     <div className="flex items-center space-x-3 mt-1">
                       <span className="text-[10px] font-medium text-muted-foreground uppercase">{new Date(reg.activity_start).toLocaleDateString('th-TH')}</span>
                       <span className="text-[10px] text-muted-foreground">•</span>
                       <span className="text-[10px] font-medium text-muted-foreground uppercase">{reg.hours} ชั่วโมง</span>
                     </div>
                   </div>
-                  <Badge variant={reg.status === 'attended' ? 'success' : 'primary'}>
-                    {reg.status === 'attended' ? 'เข้าร่วมแล้ว' : 'ลงทะเบียนแล้ว'}
-                  </Badge>
-                </div>
+                  <div className="flex flex-wrap gap-1.5 justify-end max-w-[50%]">
+                    <Badge variant="primary" className="text-[9px] px-2 py-0.5 rounded-lg font-black uppercase">ลงทะเบียน</Badge>
+                    {reg.is_attended && (
+                      <Badge variant="success" className="text-[9px] px-2 py-0.5 rounded-lg font-black uppercase">เข้าร่วม</Badge>
+                    )}
+                    {reg.evaluation_result === 'pass' && (
+                      <Badge variant="success" className="bg-emerald-600 text-white text-[9px] px-2 py-0.5 rounded-lg font-black uppercase border-none shadow-sm">ผ่าน</Badge>
+                    )}
+                    {reg.evaluation_result === 'fail' && (
+                      <Badge variant="danger" className="text-[9px] px-2 py-0.5 rounded-lg font-black uppercase">ไม่ผ่าน</Badge>
+                    )}
+                  </div>
+                </Link>
               ))
             ) : (
               <div className="p-12 text-center">
@@ -110,7 +123,7 @@ const StudentDashboard = ({ data }) => {
                     <p className="font-bold text-foreground group-hover:text-indigo-500 transition-colors truncate">{act.title}</p>
                     <p className="text-[10px] font-medium text-muted-foreground mt-1 truncate">{act.description}</p>
                   </div>
-                  <Link 
+                  <Link
                     href={`/activities/${act.id}`}
                     className="p-2 bg-indigo-500/10 text-indigo-500 rounded-xl hover:bg-indigo-500 hover:text-white transition-all shadow-sm"
                   >

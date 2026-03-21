@@ -6,12 +6,15 @@ export function cn(...inputs) {
 }
 
 export function getImageUrl(path) {
-  if (!path) return null;
-  if (path.startsWith('http')) return path;
+  if (!path) return "https://i.pravatar.cc/150";
+  if (path.startsWith('http') || path.startsWith('data:')) return path;
   
-  // Get base API URL from env or default
+  // Get base server URL from API URL (strip /api)
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
-  const baseUrl = apiUrl.replace('/api', '');
+  const baseUrl = apiUrl.endsWith('/api') ? apiUrl.slice(0, -4) : apiUrl;
   
-  return `${baseUrl}/${path}`;
+  // Ensure path starts with /
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  
+  return `${baseUrl}${normalizedPath}`;
 }

@@ -1,8 +1,10 @@
 import axiosInstance from '../lib/axiosInstance';
 
 export const reportService = {
-  getDashboardData: async () => {
-    const response = await axiosInstance.get('/reports/dashboard');
+  getDashboardData: async (year?: number) => {
+    const response = await axiosInstance.get('/reports/dashboard', {
+      params: { year }
+    });
     return response.data;
   },
 

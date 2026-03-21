@@ -11,7 +11,9 @@ import {
   FileText,
   ShieldCheck,
   User,
-  X
+  Users,
+  X,
+  QrCode
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -24,7 +26,9 @@ const Sidebar = ({ isOpen, onClose, onLogoutClick }) => {
   const navItems = [
     { name: 'แดชบอร์ด', href: '/dashboard', icon: LayoutDashboard, roles: ['student', 'officer', 'admin', 'superadmin', 'staff', 'guest'] },
     { name: 'กิจกรรมทั้งหมด', href: '/activities', icon: Calendar, roles: ['student', 'officer', 'admin', 'superadmin'] },
+    { name: 'ลงทะเบียน (Scan QR)', href: '/check-in', icon: QrCode, roles: ['officer', 'admin', 'superadmin'] },
     { name: 'หน่วยงาน/จัดการ', href: '/manage', icon: ShieldCheck, roles: ['officer', 'admin', 'superadmin'] },
+    { name: 'จัดการผู้ใช้งาน', href: '/users', icon: Users, roles: ['admin', 'superadmin'] },
     { name: 'ทรานสคลิป', href: '/transcript', icon: FileText, roles: ['student'] },
     { name: 'โปรไฟล์', href: '/profile', icon: User, roles: ['student', 'officer', 'admin', 'superadmin', 'staff', 'guest'] },
   ];

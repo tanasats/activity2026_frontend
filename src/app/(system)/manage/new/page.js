@@ -68,6 +68,7 @@ export default function NewActivityPage() {
     budgetRequested: 0,
     skills: [],
     faculties: [], // Restrictions
+    ownerFacultyCode: '', // New field for primary owning faculty
     coverImage: null, // Initial value for file
     publishStatus: 'private', // Default to public so it's visible once approved //'Public' : 'Private'
     attachments: [] // List of { file, displayName, isPublished }
@@ -360,6 +361,27 @@ export default function NewActivityPage() {
                   </select>
                 </div>
               </div>
+
+              {/* Show Owner Faculty selector ONLY for Admins/Superadmins */}
+              {(user?.role === 'admin' || user?.role === 'superadmin') && (
+                <div className="space-y-2">
+                  <label className="text-sm text-muted-foreground flex items-center">
+                    <Building2 size={14} className="mr-1.5 text-primary" /> คณะเจ้าของโครงการ (Owner Faculty)
+                  </label>
+                  <select
+                    required
+                    className="text-slate-900 w-full bg-muted/30 border border-border focus:border-primary focus:ring-1 focus:ring-primary rounded-2xl px-4 py-3 transition-all outline-none"
+                    value={formData.ownerFacultyCode}
+                    onChange={(e) => setFormData({ ...formData, ownerFacultyCode: e.target.value })}
+                  >
+                    <option value="">เลือกคณะเจ้าของโครงการ</option>
+                    {masterData.faculties.map(f => (
+                      <option key={f.faculty_code} value={f.faculty_code}>{f.faculty_name} ({f.faculty_code})</option>
+                    ))}
+                  </select>
+                  <p className="text-[10px] text-muted-foreground px-1 italic">* สำหรับ Admin: กิจกรรมที่สร้างจะถูกผูกเข้ากับคณะที่เลือกนี้</p>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <label className="text-sm text-muted-foreground">รายละเอียดกิจกรรม</label>

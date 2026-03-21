@@ -31,7 +31,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Edit2,
-  Trash2
+  Trash2,
+  MoreVertical
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -189,7 +190,7 @@ export default function ManagementPage() {
           <h2 className="text-3xl font-black text-foreground tracking-tight">จัดการข้อมูลกิจกรรม</h2>
           <p className="text-muted-foreground">ควบคุม ตรวจสอบ และอนุมัติโครงการเพื่อนิสิต</p>
         </div>
-        {user?.role === 'officer' && (
+        {(user?.role === 'officer' || user?.role === 'admin' || user?.role === 'superadmin') && (
           <Link href="/manage/new">
             <Button className="py-2 px-4 rounded-[1.5rem] shadow-xl shadow-primary/20 flex items-center bg-primary text">
               <Plus size={18} className="mr-2" /> เพิ่มกิจกรรมใหม่
@@ -281,17 +282,18 @@ export default function ManagementPage() {
               <tr className="bg-muted/50 border-b border-border">
                 <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider">ID / Code</th>
                 <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider">Activity Description</th>
-                <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider text-center">Hours</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-muted-foreground tracking-widest text-center">จัดการ</th>
                 <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider text-center">Enrollment</th>
                 <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider">Visibility</th>
                 <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase text-muted-foreground tracking-widest text-center">แก้ไข</th>
                 <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-8 py-20 text-center">
+                  <td colSpan={8} className="px-8 py-20 text-center">
                     <div className="flex flex-col items-center justify-center space-y-3">
                       <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
                       <p className="font-black uppercase tracking-widest text-xs italic opacity-40">กำลังโหลด...</p>
@@ -300,7 +302,7 @@ export default function ManagementPage() {
                 </tr>
               ) : activities.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-8 py-20 text-center">
+                  <td colSpan={8} className="px-8 py-20 text-center">
                     <div className="flex flex-col items-center justify-center space-y-3 opacity-40">
                       <Search size={40} />
                       <p className="font-black uppercase tracking-widest text-xs italic">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</p>
@@ -323,7 +325,17 @@ export default function ManagementPage() {
                       <span className="text-[10px] font-medium text-muted-foreground uppercase">{item.type_name}</span>
                     </div>
                   </td>
-                  <td className="px-8 py-6 text-center text-foreground">{item.hours}</td>
+                  <td className="px-6 py-5">
+                    <div className="flex justify-center">
+                      {(user?.role === 'admin' || user?.role === 'superadmin' || parseInt(item.creator_id) === parseInt(user?.id)) && (
+                        <Link href={`/manage/${item.id}/dashboard`}>
+                          <Button variant="outline" size="sm" className="text-xs rounded-xl border-primary/20 hover:bg-primary/10 text-primary flex items-center gap-2" title="แดชบอร์ดจัดการ">
+                            <Users size={14} /> <div className="hidden md:block">แดชบอร์ด</div>
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-8 py-6 text-center">
                     <div className="flex flex-col items-center">
                       <span className={cn(
@@ -347,11 +359,11 @@ export default function ManagementPage() {
                   </td>
                   <td className="px-8 py-6">
                     <button
-                      disabled={!(user?.role === 'admin' || user?.role === 'superadmin' || (user?.role === 'officer' && item.owner_faculty_code === user.faculty_code))}
+                      disabled={!(user?.role === 'admin' || user?.role === 'superadmin' || parseInt(item.creator_id) === parseInt(user?.id))}
                       onClick={() => handleToggleVisibility(item.id, item.publish_status)}
                       className={cn(
                         "transition-all active:scale-95 disabled:opacity-100 disabled:cursor-default",
-                        (user?.role === 'admin' || user?.role === 'superadmin' || (user?.role === 'officer' && item.owner_faculty_code === user.faculty_code)) && "hover:opacity-80"
+                        (user?.role === 'admin' || user?.role === 'superadmin' || parseInt(item.creator_id) === parseInt(user?.id)) && "hover:opacity-80"
                       )}
                     >
                       <Badge variant={item.publish_status === 'public' ? 'indigo' : 'slate'} className="text-[9px] uppercase cursor-pointer">
@@ -363,26 +375,28 @@ export default function ManagementPage() {
                     <Badge variant={item.status === 'ขออนุมัติ' ? 'warning' : (item.status === 'ปิดกิจกรรม' ? 'slate' : 'success')}>
                       {item.status}
                     </Badge>
+                    {user?.role !== 'student' && item.status === 'ขออนุมัติ' && (user?.role === 'admin' || user?.role === 'superadmin') && (
+                      <button
+                        onClick={() => handleApprove(item.id)}
+                        className="px-4 py-1 bg-emerald-500/10 text-emerald-600 rounded-xl text-[10px]  hover:bg-emerald-500 hover:text-white">
+                        อนุมัติ
+                      </button>
+                    )}
+
+                  </td>
+                  <td className="px-6 py-5">
+                    <div className="flex justify-center">
+                      {(user?.role === 'admin' || user?.role === 'superadmin' || parseInt(item.creator_id) === parseInt(user?.id)) && (
+                        <Link href={`/manage/${item.id}/edit`}>
+                          <Button variant="ghost" size="icon" className="group rounded-xl hover:bg-primary/10 transition-all duration-300" title="แก้ไขกิจกรรม">
+                            <Edit2 size={18} className="text-muted-foreground group-hover:text-primary" />
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
                   </td>
                   <td className="px-8 py-6 text-right space-x-2">
                     <div className='flex flex-between'>
-                      {user?.role !== 'student' && item.status === 'ขออนุมัติ' && (user?.role === 'admin' || user?.role === 'superadmin') && (
-                        <button
-                          onClick={() => handleApprove(item.id)}
-                          className="px-4 py-2 bg-emerald-500/10 text-emerald-600 rounded-xl text-[10px] font-black uppercase hover:bg-emerald-500 hover:text-white transition-all shadow-sm"
-                        >
-                          Approve
-                        </button>
-                      )}
-
-                      {(user?.role === 'admin' || user?.role === 'superadmin' || (user?.role === 'officer' && item.owner_faculty_code === user.faculty_code)) && (
-                        <Link href={`/manage/${item.id}/edit`}>
-                          <button className="p-2 text-muted-foreground hover:text-primary transition-colors" title="แก้ไขกิจกรรม">
-                            <Edit2 size={18} />
-                          </button>
-                        </Link>
-                      )}
-
                       {(user?.role === 'admin' || user?.role === 'superadmin' || (user?.role === 'officer' && parseInt(item.creator_id) === parseInt(user?.id))) && (
                         <button
                           onClick={() => handleDelete(item.id)}

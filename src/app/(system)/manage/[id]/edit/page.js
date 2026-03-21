@@ -115,9 +115,10 @@ export default function EditActivityPage() {
 
         // 2. Pre-fill form with activity data
         if (activity) {
-          // Ownership Check
-          if (user?.role === 'officer' && activity.owner_faculty_code !== user.faculty_code) {
-            toast.error('คุณไม่มีสิทธิ์แก้ไขกิจกรรมนี้');
+          // Ownership Check: Only the creator can edit (for officers)
+          const isOwner = user?.role === 'admin' || user?.role === 'superadmin' || parseInt(activity.creator_id) === parseInt(user?.id);
+          if (!isOwner) {
+            toast.error('คุณไม่มีสิทธิ์แก้ไขกิจกรรมที่ไม่ได้สร้างเอง');
             router.push('/manage');
             return;
           }
@@ -209,7 +210,7 @@ export default function EditActivityPage() {
 
   const handleDeleteExistingAttachment = async (attachmentId) => {
     try {
-      if (confirm('ยืนยันระบบจะลบไฟล์ต้นฉบับออกจากระบบทันที ยืนยันการลบ?')) {
+      if (confirm('ยืนยันการลบไฟล์แนบ?')) {
         await activityService.deleteAttachment(attachmentId);
         setFormData(prev => ({
           ...prev,
@@ -218,7 +219,22 @@ export default function EditActivityPage() {
         toast.success('ลบไฟล์แนบสำเร็จ');
       }
     } catch (error) {
-      toast.error('ลบไฟล์ไม่สำเร็จ');
+      toast.error('ลบไม่สำเร็จ');
+    }
+  };
+
+  const handleUpdateAttachmentName = async (attachmentId, newName) => {
+    try {
+      await activityService.updateAttachment(attachmentId, { displayName: newName });
+      setFormData(prev => ({
+        ...prev,
+        existingAttachments: prev.existingAttachments.map(a => 
+          a.id === attachmentId ? { ...a, display_name: newName } : a
+        )
+      }));
+      toast.success('บันทึกชื่อไฟล์สำเร็จ');
+    } catch (error) {
+      toast.error('บันทึกชื่อไฟล์ไม่สำเร็จ');
     }
   };
 
@@ -612,7 +628,24 @@ export default function EditActivityPage() {
                     <Save size={20} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-black text-foreground truncate">{att.display_name}</p>
+                    <input
+                      type="text"
+                      className="w-full bg-transparent border-none p-0 text-xs font-black focus:ring-0"
+                      value={att.display_name}
+                      onBlur={(e) => {
+                        if (e.target.value !== att.display_name) {
+                          handleUpdateAttachmentName(att.id, e.target.value);
+                        }
+                      }}
+                      onChange={(e) => {
+                        setFormData(prev => ({
+                          ...prev,
+                          existingAttachments: prev.existingAttachments.map(a => 
+                            a.id === att.id ? { ...a, display_name: e.target.value } : a
+                          )
+                        }));
+                      }}
+                    />
                     <p className="text-[9px] text-muted-foreground uppercase font-bold italic truncate">{att.file_name}</p>
                   </div>
                   <div className="flex items-center space-x-2">

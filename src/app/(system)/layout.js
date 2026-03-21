@@ -3,6 +3,7 @@
 import { useAuthStore } from '@/store/useAuthStore';
 import Sidebar from '@/components/Sidebar';
 import MobileHeader from '@/components/MobileHeader';
+import { getImageUrl } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
@@ -54,7 +55,7 @@ export default function SystemLayout({ children }) {
               )}
             </div>
             <img
-              src={user.profile_image || "https://i.pravatar.cc/150"}
+              src={getImageUrl(user.profile_image)}
               alt="Profile"
               className="w-12 h-12 rounded-full border-2 border-card shadow-sm"
             />

@@ -34,10 +34,12 @@ export function ConfirmationModal({
             <div className={cn(
               "w-20 h-20 rounded-xl flex items-center justify-center transition-all",
               type === 'warning' && "bg-amber-500/10 text-amber-500 shadow-lg shadow-amber-500/10",
+              type === 'danger' && "bg-red-500/10 text-red-500 shadow-lg shadow-red-500/10",
               type === 'success' && "bg-emerald-500/10 text-emerald-500 shadow-lg shadow-emerald-500/10",
               type === 'info' && "bg-primary/10 text-primary shadow-lg shadow-primary/10"
             )}>
               {type === 'warning' && <AlertTriangle size={40} className="animate-pulse" />}
+              {type === 'danger' && <AlertTriangle size={40} className="animate-pulse text-red-500" />}
               {type === 'success' && <ShieldCheck size={40} />}
               {type === 'info' && <HelpCircle size={40} />}
             </div>
@@ -54,7 +56,7 @@ export function ConfirmationModal({
           {/* Actions */}
           <div className="mt-10 flex flex-col gap-3">
             <Button
-              variant={type === 'warning' ? 'destructive' : 'primary'}
+              variant={type === 'danger' || type === 'warning' ? 'danger' : 'primary'}
               className="w-full py-5 rounded-2xl bg-red-500 text-white"
               onClick={onConfirm}
               disabled={loading}

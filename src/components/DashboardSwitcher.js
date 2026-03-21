@@ -6,6 +6,7 @@ import { reportService } from '@/services/reportService';
 import StudentDashboard from './dashboards/StudentDashboard';
 import OfficerDashboard from './dashboards/OfficerDashboard';
 import AdminDashboard from './dashboards/AdminDashboard';
+import SuperAdminDashboard from './dashboards/SuperAdminDashboard';
 import { Loader2 } from 'lucide-react';
 import { Button } from './ui/Button';
 
@@ -14,12 +15,17 @@ const DashboardSwitcher = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear() + 543);
+
+  // Generate range of Academic Years (Current - 5 to Current + 1)
+  const currentYearBE = new Date().getFullYear() + 543;
+  const yearOptions = Array.from({ length: 7 }, (_, i) => currentYearBE - 5 + i).reverse();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const dashboardData = await reportService.getDashboardData();
+        const dashboardData = await reportService.getDashboardData(selectedYear);
         setData(dashboardData);
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -32,7 +38,7 @@ const DashboardSwitcher = () => {
     if (token) {
       fetchDashboardData();
     }
-  }, [token]);
+  }, [token, selectedYear]);
 
   if (loading) {
     return (
@@ -67,33 +73,72 @@ const DashboardSwitcher = () => {
     );
   }
 
-  // Switch based on user role
-  switch (user?.role) {
-    case 'student':
-      return <StudentDashboard data={data} />;
-    case 'officer':
-      return <OfficerDashboard data={data} />;
-    case 'admin':
-    case 'superadmin':
-      return <AdminDashboard data={data} />;
-    case 'staff':
-    case 'guest':
-    default:
-      return (
-        <div className="bg-card p-16 rounded-[3rem] border border-border text-center shadow-sm relative overflow-hidden group">
-          <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-8 text-5xl group-hover:scale-110 transition-transform duration-500">
-            👋
-          </div>
-          <h2 className="text-3xl font-black text-foreground mb-4 tracking-tight">สวัสดี ยินดีต้อนรับ</h2>
-          <p className="text-muted-foreground max-w-md mx-auto font-medium leading-relaxed">
-            บัญชีของคุณ ({user?.email}) เข้าสู่ระบบสำเร็จแล้ว แต่คุณยังไม่มีสิทธิ์เข้าถึงฟังก์ชันหลักของระบบกิจกรรมในขณะนี้ 
-            กรุณารอดำเนินการปรับปรุงสิทธิ์โดยติดต่อผู้ดูแลระบบ
+  const renderYearSelector = () => {
+    if (user?.role === 'student' || user?.role === 'staff' || user?.role === 'guest') return null;
+
+    return (
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+        <div>
+          <h1 className="text-3xl font-black text-foreground tracking-tight uppercase italic flex items-center">
+            <span className="w-2 h-8 bg-primary mr-3 rounded-full shadow-[0_0_15px_rgba(var(--primary),0.5)]" />
+            Dashboard Overview
+          </h1>
+          <p className="text-muted-foreground text-sm font-medium mt-1 uppercase tracking-widest pl-5">
+            สถิติกิจกรรมปีการศึกษา {selectedYear}
           </p>
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl" />
         </div>
-      );
-  }
+        
+        <div className="flex items-center space-x-3 bg-card p-2 rounded-2xl border border-border shadow-sm">
+          <label className="text-xs font-black uppercase tracking-widest text-muted-foreground px-3">
+            เรียกดูข้อมูลปีการศึกษา:
+          </label>
+          <select 
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+            className="bg-muted border-none rounded-xl px-4 py-2 font-bold text-foreground focus:ring-2 focus:ring-primary/20 cursor-pointer outline-none min-w-[120px]"
+          >
+            {yearOptions.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  };
+
+  // Switch based on user role
+  const renderDashboard = () => {
+    switch (user?.role) {
+      case 'student':
+        return <StudentDashboard data={data} />;
+      case 'officer':
+        return <OfficerDashboard data={data} />;
+      case 'admin':
+        return <AdminDashboard data={data} />;
+      case 'superadmin':
+        return <SuperAdminDashboard data={data} />;
+      default:
+        return (
+          <div className="bg-card p-16 rounded-[3rem] border border-border text-center shadow-sm relative overflow-hidden group">
+            <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-8 text-5xl group-hover:scale-110 transition-transform duration-500">
+              👋
+            </div>
+            <h2 className="text-3xl font-black text-foreground mb-4 tracking-tight">สวัสดี ยินดีต้อนรับ</h2>
+            <p className="text-muted-foreground max-w-md mx-auto font-medium leading-relaxed">
+              บัญชีของคุณ ({user?.email}) เข้าสู่ระบบสำเร็จแล้ว แต่คุณยังไม่มีสิทธิ์เข้าถึงฟังก์ชันหลักของระบบกิจกรรมในขณะนี้ 
+              กรุณารอดำเนินการปรับปรุงสิทธิ์โดยติดต่อผู้ดูแลระบบ
+            </p>
+          </div>
+        );
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {renderYearSelector()}
+      {renderDashboard()}
+    </div>
+  );
 };
 
 export default DashboardSwitcher;

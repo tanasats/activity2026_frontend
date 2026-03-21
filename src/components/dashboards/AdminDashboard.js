@@ -108,17 +108,13 @@ const AdminDashboard = ({ data }) => {
               </h3>
               <div className="space-y-3">
                 <Link href="/manage" className="flex items-center justify-between w-full p-4 bg-white/10 hover:bg-white/20 border border-white/5 rounded-2xl transition-all font-black text-xs uppercase tracking-widest">
-                  อนุมัติกิจกรรมใหม่
+                  กิจกรรมรออนุมัติ
                   <div className="px-3 py-1 bg-amber-400 text-primary-foreground text-[10px] rounded-full font-black">
                     {stats?.pending || 0}
                   </div>
                 </Link>
                 <Link href="/manage" className="flex items-center justify-between w-full p-4 bg-white/10 hover:bg-white/20 border border-white/5 rounded-2xl transition-all font-black text-xs uppercase tracking-widest">
-                  จัดการผู้ใช้งาน
-                  <Users size={18} />
-                </Link>
-                <Link href="/manage" className="flex items-center justify-between w-full p-4 bg-white/10 hover:bg-white/20 border border-white/5 rounded-2xl transition-all font-black text-xs uppercase tracking-widest">
-                  ภาพรวมทั้งมหาวิทยาลัย
+                  จัดการกิจกรรม
                   <ArrowRight size={18} />
                 </Link>
               </div>

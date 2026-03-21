@@ -55,5 +55,10 @@ export const activityService = {
   deleteAttachment: async (attachmentId: string | number) => {
     const response = await axiosInstance.delete(`/activities/attachments/${attachmentId}`);
     return response.data;
+  },
+
+  updateAttachment: async (attachmentId: string | number, data: { displayName?: string, isPublished?: boolean }) => {
+    const response = await axiosInstance.patch(`/activities/attachments/${attachmentId}`, data);
+    return response.data;
   }
 };
