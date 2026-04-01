@@ -28,6 +28,7 @@ import {
   Lock
 } from 'lucide-react';
 import Link from 'next/link';
+import PublicNavbar from '@/components/PublicNavbar';
 
 export default function ActivityDetailPage() {
   const { id } = useParams();
@@ -53,6 +54,7 @@ export default function ActivityDetailPage() {
 
   const handleRegister = async () => {
     if (!user) {
+      sessionStorage.setItem('returnTo', window.location.pathname);
       router.push('/login');
       return;
     }
@@ -66,6 +68,38 @@ export default function ActivityDetailPage() {
       toast.error(error.response?.data?.message || 'ลงทะเบียนไม่สำเร็จ');
     } finally {
       setRegistering(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const shareUrl = window.location.href;
+    const shareTitle = activity.title;
+    const shareDescription = activity.description?.substring(0, 100) + '...';
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareDescription,
+          url: shareUrl,
+        });
+        toast.success('ขอบคุณที่ช่วยแชร์กิจกรรมดีๆ นะครับ!');
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Error sharing:', err);
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        toast.success('คัดลอกลิงก์เรียบร้อยแล้ว! พร้อมให้คุณส่งต่อบนโซเชียลมีเดีย');
+        
+        // Desktop fallback: Optionally open Facebook sharer
+        const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+        window.open(fbUrl, '_blank');
+      } catch (err) {
+        toast.error('ไม่สามารถคัดลอกลิงก์ได้');
+      }
     }
   };
 
@@ -92,7 +126,9 @@ export default function ActivityDetailPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-20">
+    <div className="bg-background min-h-screen">
+      <PublicNavbar />
+      <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-1000 pb-20 pt-32 px-4 md:px-8">
       {/* Top Navigation & Actions */}
       <div className="flex justify-between items-center">
         <Link href="/activities" className="flex items-center text-muted-foreground hover:text-foreground transition-all group font-black uppercase  text-[10px]">
@@ -102,7 +138,11 @@ export default function ActivityDetailPage() {
           Back to Explorers
         </Link>
         <div className="flex items-center space-x-3">
-          <button className="p-3 bg-card border border-border rounded-2xl text-muted-foreground hover:text-primary transition-all">
+          <button 
+            onClick={handleShare}
+            className="p-3 bg-card border border-border rounded-2xl text-muted-foreground hover:text-primary transition-all active:scale-95"
+            title="Share activity"
+          >
             <Share2 size={20} />
           </button>
           <button className="p-3 bg-card border border-border rounded-2xl text-muted-foreground hover:text-amber-500 transition-all">
@@ -118,11 +158,11 @@ export default function ActivityDetailPage() {
             {/* Cover Image Header */}
             <div className="w-full aspect-[21/9] overflow-hidden relative border-b border-border bg-muted">
               <img
-                src={getImageUrl(activity.cover_image) || 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=2070&auto=format&fit=crop'}
+                src={getImageUrl(activity.cover_image, 'cover')}
                 alt={activity.title}
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.target.src = 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=2070&auto=format&fit=crop';
+                  e.target.src = '/images/cover-image.jpg';
                 }}
               />
               {/* <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" /> */}
@@ -278,7 +318,7 @@ export default function ActivityDetailPage() {
                   {registering ? 'Processing...' : (
                     user?.role === 'student'
                       ? (activity.max_participants > 0 && activity.registered_count >= activity.max_participants ? 'Activity Full' : 'Register Now')
-                      : 'Sign in as Student'
+                      : (user ? 'Sign in as Student' : 'Login to Register')
                   )}
                 </Button>
                 {activity.allowed_faculties?.length > 0 && (
@@ -304,6 +344,7 @@ export default function ActivityDetailPage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

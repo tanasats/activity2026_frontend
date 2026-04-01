@@ -152,7 +152,7 @@ export default function EditActivityPage() {
           });
 
           if (activity.cover_image) {
-            setExistingCoverImage(getImageUrl(activity.cover_image));
+            setExistingCoverImage(getImageUrl(activity.cover_image, 'cover'));
           }
         }
       } catch (error) {

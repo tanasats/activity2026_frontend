@@ -23,7 +23,6 @@ export default function LoginPage() {
     window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
   };
 
-  const notify = () => toast.loading('Here is your toast Error.');
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden transition-colors duration-500">
@@ -41,7 +40,7 @@ export default function LoginPage() {
               <div className="w-12 h-12 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 shadow-inner">
                 <Sparkles size={24} />
               </div>
-              <span className="text-xl font-black tracking-widest uppercase italic border-b-2 border-white/30">ACTIVITY MSU</span>
+              <span className="text-xl font-black italic border-b-2 border-white/30">ACTIVITY MSU</span>
             </div>
             <h1 className="text-4xl font-black mb-6">
               สะสมชั่วโมง <br />
@@ -107,7 +106,6 @@ export default function LoginPage() {
           </footer>
         </div>
       </div>
-      <button onClick={notify}>คลิกเพื่อทดสอบ</button>
     </div>
   );
 }

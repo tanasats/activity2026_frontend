@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
-import { 
-  QrCode, 
-  Camera, 
-  CheckCircle2, 
-  AlertCircle, 
-  Loader2, 
+import {
+  QrCode,
+  Camera,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
   ChevronDown,
   UserCheck,
   History
@@ -26,7 +26,7 @@ export default function CheckInPage() {
   const [scanning, setScanning] = useState(false);
   const [lastCheckIn, setLastCheckIn] = useState(null);
   const [history, setHistory] = useState([]);
-  
+
   const scannerRef = useRef(null);
   const isProcessing = useRef(false);
 
@@ -61,8 +61,8 @@ export default function CheckInPage() {
 
     setScanning(true);
     setTimeout(() => {
-      const scanner = new Html5QrcodeScanner("reader", { 
-        fps: 10, 
+      const scanner = new Html5QrcodeScanner("reader", {
+        fps: 10,
         qrbox: { width: 250, height: 250 },
         aspectRatio: 1.0
       }, false);
@@ -86,13 +86,13 @@ export default function CheckInPage() {
 
   async function onScanSuccess(decodedText) {
     if (isProcessing.current) return;
-    
+
     isProcessing.current = true;
     // Play a subtle beep if possible, or just visual feedback
-    
+
     try {
       const result = await registrationService.checkIn(selectedActivity.id, decodedText);
-      
+
       const checkInData = {
         name: result.studentName,
         code: result.studentCode,
@@ -104,7 +104,7 @@ export default function CheckInPage() {
       setLastCheckIn(checkInData);
       setHistory(prev => [checkInData, ...prev].slice(0, 5));
       toast.success(`สำเร็จ: ${result.studentName}`);
-      
+
       // Pause briefly before next scan
       setTimeout(() => {
         isProcessing.current = false;
@@ -114,16 +114,16 @@ export default function CheckInPage() {
     } catch (error) {
       const msg = error.response?.data?.message || 'สแกนล้มเหลว';
       const studentName = error.response?.data?.studentName;
-      
+
       setLastCheckIn({
         name: studentName || 'ไม่พบนิสิต',
         message: msg,
         success: false,
         time: new Date().toLocaleTimeString('th-TH')
       });
-      
+
       toast.error(msg);
-      
+
       setTimeout(() => {
         isProcessing.current = false;
         setLastCheckIn(null);
@@ -145,7 +145,7 @@ export default function CheckInPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-500">
+    <div className="max-w-full mx-auto px-4 py-8 space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-foreground tracking-tight flex items-center">
@@ -162,7 +162,7 @@ export default function CheckInPage() {
             <div className="space-y-4">
               <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block ml-2">1. เลือกกิจกรรมที่ต้องการลงทะเบียน</label>
               <div className="relative group">
-                <select 
+                <select
                   className="w-full pl-6 pr-12 py-4 bg-background border border-border rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none appearance-none transition-all font-bold cursor-pointer hover:border-primary/50"
                   onChange={(e) => {
                     const act = activities.find(a => String(a.id) === e.target.value);
@@ -194,7 +194,7 @@ export default function CheckInPage() {
                       </p>
                     </div>
                   </div>
-                  <Button 
+                  <Button
                     onClick={scanning ? stopScanner : startScanner}
                     variant={scanning ? 'outline' : 'primary'}
                     className="rounded-xl px-6"
@@ -203,8 +203,8 @@ export default function CheckInPage() {
                   </Button>
                 </div>
 
-                <div 
-                  id="reader" 
+                <div
+                  id="reader"
                   className={cn(
                     "w-full rounded-[2.5rem] overflow-hidden border-4 transition-all duration-300 relative",
                     scanning ? "border-primary shadow-2xl shadow-primary/10 opacity-100" : "border-muted bg-muted/20 opacity-50 pointer-events-none grayscale grayscale-0"
@@ -230,8 +230,8 @@ export default function CheckInPage() {
             {lastCheckIn ? (
               <Card className={cn(
                 "h-full p-8 border-2 flex flex-col items-center justify-center text-center animate-in zoom-in-95 rounded-[3rem] transition-all duration-500",
-                lastCheckIn.success 
-                  ? "border-emerald-500/50 bg-emerald-500/[0.03] shadow-2xl shadow-emerald-500/10" 
+                lastCheckIn.success
+                  ? "border-emerald-500/50 bg-emerald-500/[0.03] shadow-2xl shadow-emerald-500/10"
                   : "border-rose-500/50 bg-rose-500/[0.03] shadow-2xl shadow-rose-500/10"
               )}>
                 <div className={cn(
@@ -260,7 +260,7 @@ export default function CheckInPage() {
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent animate-pulse" />
                 <UserCheck size={48} className="text-muted-foreground mb-4 opacity-20" />
                 <p className="text-xs font-black text-muted-foreground uppercase tracking-widest leading-relaxed">
-                  รอรับข้อมูล<br/>จากการสแกน...
+                  รอรับข้อมูล<br />จากการสแกน...
                 </p>
               </Card>
             )}

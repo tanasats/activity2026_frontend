@@ -5,8 +5,11 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-export function getImageUrl(path) {
-  if (!path) return "https://i.pravatar.cc/150";
+export function getImageUrl(path, type = 'avatar') {
+  if (!path) {
+    return type === 'cover' ? '/images/cover-image.jpg' : "https://i.pravatar.cc/150";
+  }
+  
   if (path.startsWith('http') || path.startsWith('data:')) return path;
   
   // Get base server URL from API URL (strip /api)

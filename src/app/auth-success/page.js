@@ -17,7 +17,15 @@ export default function AuthSuccessPage() {
       try {
         const user = JSON.parse(decodeURIComponent(userJson));
         setAuth(user, token);
-        router.push('/dashboard');
+        
+        // Handle returnTo redirect
+        const returnTo = sessionStorage.getItem('returnTo');
+        if (returnTo) {
+          sessionStorage.removeItem('returnTo');
+          router.push(returnTo);
+        } else {
+          router.push('/dashboard');
+        }
       } catch (err) {
         console.error('Failed to parse user data', err);
         router.push('/login?error=invalid_data');

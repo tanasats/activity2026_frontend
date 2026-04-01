@@ -16,15 +16,18 @@ import {
   ArrowRight,
   MapPin,
   Building2,
-  Bookmark
+  Bookmark,
+  X
 } from 'lucide-react';
 import Link from 'next/link';
+import PublicNavbar from '@/components/PublicNavbar';
 
 export default function ActivitiesPage() {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuthStore();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const fetchActivities = async () => {
@@ -57,7 +60,9 @@ export default function ActivitiesPage() {
   }
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+    <div className="bg-background min-h-screen">
+      <PublicNavbar />
+      <div className="max-w-7xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 pt-32 px-4 md:px-8">
       {/* Header & Search */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-2">
@@ -88,13 +93,16 @@ export default function ActivitiesPage() {
         {filteredActivities.map((activity) => (
           <Card key={activity.id} className="flex flex-col h-full group hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 border-border hover:border-primary/30 relative overflow-hidden">
              {/* Cover Image */}
-             <div className="w-full aspect-[16/9] overflow-hidden bg-muted relative">
+             <div 
+               className="w-full aspect-[16/9] overflow-hidden bg-muted relative cursor-zoom-in"
+               onClick={() => setSelectedImage(getImageUrl(activity.cover_image, 'cover'))}
+             >
                 <img 
-                  src={getImageUrl(activity.cover_image) || 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=2070&auto=format&fit=crop'} 
+                  src={getImageUrl(activity.cover_image, 'cover')} 
                   alt={activity.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   onError={(e) => {
-                    e.target.src = 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?q=80&w=2070&auto=format&fit=crop';
+                    e.target.src = '/images/cover-image.jpg';
                   }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-60" />
@@ -179,6 +187,23 @@ export default function ActivitiesPage() {
           </div>
         )}
       </div>
+      {/* Image Preview Modal */}
+      {selectedImage && (
+        <div 
+          className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300"
+          onClick={() => setSelectedImage(null)}
+        >
+          <button className="absolute top-10 right-10 text-white/50 hover:text-white transition-colors bg-white/10 p-2 rounded-full">
+            <X size={32} />
+          </button>
+          <img 
+            src={selectedImage} 
+            className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300" 
+            alt="Preview" 
+          />
+        </div>
+      )}
+    </div>
     </div>
   );
 }

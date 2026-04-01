@@ -62,7 +62,7 @@ export default function SystemLayout({ children }) {
           </div>
         </header>
 
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-full mx-auto">
           {children}
         </div>
       </main>
