@@ -115,8 +115,8 @@ export default function LandingPage() {
         <div className="flex flex-col md:flex-row items-end justify-between gap-6">
           <div className="space-y-4">
             <Badge variant="indigo" className="px-4 py-1 text-[10px] font-black uppercase tracking-widest">Ongoing</Badge>
-            <h2 className="text-4xl font-black tracking-tight text-foreground">กิจกรรมที่กำลังเปิดอยู่</h2>
-            <p className="text-muted-foreground text-lg font-medium">เริ่มต้นสะสมชั่วโมงและเรียนรู้ทักษะใหม่ๆ ได้เลยวันนี้</p>
+            <h2 className="text-4xl font-black tracking-tight text-foreground">กิจกรรมที่กำลังเปิดรับสมัคร</h2>
+            <p className="text-muted-foreground text-lg font-medium">เริ่มต้นสมัครเข้าร่วมกิจกรรมและเรียนรู้ทักษะใหม่ๆ ได้เลยวันนี้</p>
           </div>
           <Link href="/activities" className="text-primary font-black uppercase tracking-widest text-xs flex items-center group">
             View All Activities
@@ -225,8 +225,8 @@ export default function LandingPage() {
               },
               {
                 icon: <LogIn size={32} />,
-                title: "Login & Register",
-                desc: "เข้าสู่ระบบด้วยอีเมล MSU และกดลงทะเบียนเข้าร่วม"
+                title: "Login & Apply",
+                desc: "เข้าสู่ระบบด้วยอีเมล MSU และกดสมัครเข้าร่วมกิจกรรม"
               },
               {
                 icon: <Target size={32} />,

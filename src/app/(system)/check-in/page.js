@@ -139,7 +139,7 @@ export default function CheckInPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Loader2 className="animate-spin text-primary" size={40} />
-        <p className="text-muted-foreground animate-pulse font-medium">กำลังเตรียมระบบลงทะเบียน...</p>
+        <p className="text-muted-foreground animate-pulse font-medium">กำลังเตรียมระบบลงทะเบียนเข้าร่วม...</p>
       </div>
     );
   }
@@ -151,7 +151,7 @@ export default function CheckInPage() {
           <h1 className="text-3xl font-black text-foreground tracking-tight flex items-center">
             <QrCode className="mr-3 text-primary" size={32} /> ลงทะเบียนเข้าร่วม (Scan QR)
           </h1>
-          <p className="text-muted-foreground font-medium mt-1 italic">ใช้กล้องเว็บแคมสแกน QR Code ของนิสิตเพื่อเช็คชื่อ</p>
+          <p className="text-muted-foreground font-medium mt-1 italic">ใช้กล้องเว็บแคมสแกน QR Code ของนิสิตเพื่อลงทะเบียนเข้าร่วม</p>
         </div>
       </div>
 
@@ -160,7 +160,7 @@ export default function CheckInPage() {
         <div className="lg:col-span-2 space-y-6">
           <Card className="p-6 border-border rounded-[2.5rem] bg-card/50 backdrop-blur-sm shadow-sm">
             <div className="space-y-4">
-              <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block ml-2">1. เลือกกิจกรรมที่ต้องการลงทะเบียน</label>
+              <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest block ml-2">1. เลือกกิจกรรมที่ต้องการลงทะเบียนเข้าร่วม</label>
               <div className="relative group">
                 <select
                   className="w-full pl-6 pr-12 py-4 bg-background border border-border rounded-2xl focus:ring-2 focus:ring-primary/20 outline-none appearance-none transition-all font-bold cursor-pointer hover:border-primary/50"
@@ -245,7 +245,7 @@ export default function CheckInPage() {
                     <h3 className="text-xl font-black text-foreground mb-1">{lastCheckIn.name}</h3>
                     <p className="text-xs font-bold text-muted-foreground font-mono uppercase italic mb-4">{lastCheckIn.code}</p>
                     <div className="px-4 py-1.5 bg-emerald-500/10 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest">
-                      ลงทะเบียนสำเร็จที่ {lastCheckIn.time}
+                      ลงทะเบียนเข้าร่วมสำเร็จที่ {lastCheckIn.time}
                     </div>
                   </>
                 ) : (

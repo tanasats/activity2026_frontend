@@ -13,9 +13,12 @@ import {
   Download,
   Printer,
   CheckCircle2,
-  X
+  X,
+  Camera,
+  Globe
 } from 'lucide-react';
 import { registrationService } from '@/services/registrationService';
+import { activityService } from '@/services/activityService';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -30,6 +33,34 @@ export default function RegistrationDetailPage() {
   const [registration, setRegistration] = useState(null);
   const [images, setImages] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [selfieUploading, setSelfieUploading] = useState(false);
+
+  const handleSelfieUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate size (e.g., 8MB)
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error('ไฟล์ภาพต้องมีขนาดไม่เกิน 8MB');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      setSelfieUploading(true);
+      const res = await activityService.selfieCheckin(registration.activity_id, formData);
+      toast.success(res.message || 'เช็คอินสำเร็จ');
+      fetchData(); // Refresh to show "Attended" status
+    } catch (error) {
+      console.error('Selfie Check-in Error:', error);
+      toast.error(error.response?.data?.message || 'เช็คอินไม่สำเร็จ กรุณาตรวจสอบพิกัดและข้อมูลภาพ');
+    } finally {
+      setSelfieUploading(false);
+      e.target.value = '';
+    }
+  };
 
   useEffect(() => {
     fetchData();
@@ -138,9 +169,9 @@ export default function RegistrationDetailPage() {
               />
             </div>
             <div className="text-center">
-              <p className="text-xs font-black text-primary uppercase tracking-widest mb-2">QR Code สำหรับลงทะเบียน</p>
+              <p className="text-xs font-black text-primary uppercase tracking-widest mb-2">QR Code สำหรับลงทะเบียนเข้าร่วม</p>
               <p className="text-[10px] text-muted-foreground font-medium max-w-[180px] leading-relaxed">
-                กรุณาแสดง QR Code นี้ต่อผู้จัดกิจกรรมที่หน้างานเพื่อบันทึกการเข้าร่วม
+                กรุณาแสดง QR Code นี้ต่อผู้จัดกิจกรรมที่หน้างานเพื่อลงทะเบียนเข้าร่วม
               </p>
             </div>
 
@@ -150,12 +181,67 @@ export default function RegistrationDetailPage() {
             </div>
           </Card>
 
+          {/* Selfie Check-in Section (Student Only) */}
+          {registration.allow_selfie_checkin && !registration.is_attended && (
+            <Card className="p-8 border-indigo-500/20 bg-indigo-500/[0.02] rounded-[3rem] space-y-6 shadow-xl shadow-indigo-500/5 animate-in fade-in zoom-in duration-500">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-600">
+                  <Camera size={24} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-foreground">ลงทะเบียนเข้าร่วม (Selfie)</h3>
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">ลงทะเบียนเข้าร่วมด้วยภาพถ่ายและพิกัด GPS</p>
+                </div>
+              </div>
+
+              <div className="bg-white/50 backdrop-blur-sm border border-indigo-100 rounded-3xl p-6 text-center space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-500/10 text-amber-600 rounded-full text-[9px] font-black uppercase tracking-wider">
+                  <Globe size={12} /> ข้อมูลพิกัดและที่ตั้ง
+                </div>
+                <p className="text-xs text-muted-foreground px-4 leading-relaxed">
+                  กรุณาถ่ายรูป Selfie ของคุณในพื้นที่จัดกิจกรรม ระบบจะตรวจสอบ **พิกัด GPS** และ **เวลา** จากภาพถ่ายโดยอัตโนมัติเพื่อลงทะเบียนเข้าร่วม
+                </p>
+              </div>
+
+              <div className="relative group">
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="user"
+                  onChange={handleSelfieUpload}
+                  disabled={selfieUploading}
+                  className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                />
+                <Button
+                  className="w-full h-16 rounded-2xl text-[16px] font-black bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 group-hover:scale-[1.02] transition-all"
+                  disabled={selfieUploading}
+                >
+                  {selfieUploading ? (
+                    <>
+                      <Loader2 className="animate-spin mr-2 text-white" size={20} />
+                      กำลังตรวจสอบข้อมูล...
+                    </>
+                  ) : (
+                    <>
+                      <Camera className="mr-2" size={24} />
+                      ถ่ายภาพ Selfie เพื่อลงทะเบียนเข้าร่วม
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <p className="text-[9px] text-center text-muted-foreground italic leading-tight">
+                * โปรดมั่นใจว่าคุณได้เปิดสิทธิ์ "Location Access" สำหรับแอพกล้องถ่ายรูปของคุณ และไฟล์ภาพมีข้อมูล GPS (EXIF)
+              </p>
+            </Card>
+          )}
+
           {/* Evidence Upload Section - Only visible if attended */}
           {registration.is_attended && (
             <Card className="p-8 border-emerald-500/20 bg-emerald-500/[0.02] rounded-[3rem] space-y-6 shadow-xl shadow-emerald-500/5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-black text-foreground">หลักฐานการเข้าร่วม</h3>
+                  <h3 className="text-lg font-black text-foreground">ภาพกิจกรรมของฉัน</h3>
                   <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">อัปโหลดภาพถ่ายกิจกรรม (สูงสุด 5 ภาพ)</p>
                 </div>
                 <div className="text-right">
@@ -216,7 +302,7 @@ export default function RegistrationDetailPage() {
             </div>
 
             <div className="flex flex-wrap gap-2 mb-4">
-              <Badge variant="primary" className="uppercase tracking-widest text-[9px]">ลงทะเบียนแล้ว</Badge>
+              <Badge variant="primary" className="uppercase tracking-widest text-[9px]">สมัครเข้าร่วมแล้ว</Badge>
               {registration.is_attended && (
                 <Badge variant="success" className="uppercase tracking-widest text-[9px]">เข้าร่วมแล้ว</Badge>
               )}
@@ -311,7 +397,7 @@ export default function RegistrationDetailPage() {
               </div>
             </div>
             <div className="mt-4 pt-4 border-t border-border/50 text-[10px] text-muted-foreground italic">
-              ลงทะเบียนเมื่อ: {new Date(registration.registered_at).toLocaleString('th-TH')}
+              สมัครเข้าร่วมเมื่อ: {new Date(registration.registered_at).toLocaleString('th-TH')}
             </div>
           </Card>
         </div>

@@ -11,12 +11,14 @@ export default function AuthSuccessPage() {
 
   useEffect(() => {
     const token = searchParams.get('token');
+    const refreshToken = searchParams.get('refreshToken');
     const userJson = searchParams.get('user');
 
     if (token && userJson) {
       try {
         const user = JSON.parse(decodeURIComponent(userJson));
-        setAuth(user, token);
+        setAuth(user, token, refreshToken);
+
         
         // Handle returnTo redirect
         const returnTo = sessionStorage.getItem('returnTo');

@@ -30,6 +30,12 @@ import { getImageUrl } from '@/lib/utils';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import dynamic from 'next/dynamic';
+
+const MapPicker = dynamic(() => import('@/components/MapPicker'), { 
+  ssr: false,
+  loading: () => <div className="h-[300px] bg-muted animate-pulse rounded-2xl flex items-center justify-center text-[10px] font-black uppercase tracking-widest text-muted-foreground">Loading Map...</div>
+});
 
 export default function EditActivityPage() {
   const router = useRouter();
@@ -80,6 +86,10 @@ export default function EditActivityPage() {
     publishStatus: 'private',
     status: 'ขออนุมัติ',
     creatorId: null,
+    latitude: null,
+    longitude: null,
+    checkinRadius: 200,
+    allowSelfieCheckin: false,
     attachments: [], // New attachments to upload
     existingAttachments: [] // Already uploaded attachments
   });
@@ -147,6 +157,10 @@ export default function EditActivityPage() {
             publishStatus: activity.publish_status,
             status: activity.status,
             creatorId: activity.creator_id,
+            latitude: activity.latitude,
+            longitude: activity.longitude,
+            checkinRadius: activity.checkin_radius || 200,
+            allowSelfieCheckin: activity.allow_selfie_checkin || false,
             attachments: [],
             existingAttachments: activity.attachments || []
           });
@@ -531,10 +545,83 @@ export default function EditActivityPage() {
             </div>
           </Card>
 
-          {/* Section 3: Skills */}
+          {/* Section 3: Registration Settings */}
+          <Card className="p-8 border-border relative overflow-hidden group">
+            <h3 className="text-lg font-black text-foreground mb-8 uppercase italic flex items-center">
+              <span className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center mr-3 text-sm not-italic">3</span>
+              การลงทะเบียนเข้าร่วมและสถานที่
+            </h3>
+
+            <div className="space-y-6">
+              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl border border-border">
+                <div>
+                  <p className="text-sm font-bold text-foreground">เปิดใช้งานการลงทะเบียนเข้าร่วมด้วยภาพถ่าย (Selfie)</p>
+                  <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mt-1">ให้นิสิตถ่ายรูปยืนยันตัวตนพร้อมพิกัด GPS</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, allowSelfieCheckin: !formData.allowSelfieCheckin })}
+                  className={cn(
+                    "w-12 h-6 rounded-full transition-all relative",
+                    formData.allowSelfieCheckin ? "bg-primary" : "bg-muted"
+                  )}
+                >
+                  <div className={cn(
+                    "absolute top-1 w-4 h-4 rounded-full bg-white transition-all",
+                    formData.allowSelfieCheckin ? "left-7" : "left-1"
+                  )} />
+                </button>
+              </div>
+
+              {formData.allowSelfieCheckin && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">พิกัดสถานที่จัดกิจการ (คลิกที่แผนที่เพื่อเลือก)</label>
+                    <MapPicker 
+                      lat={formData.latitude} 
+                      lng={formData.longitude} 
+                      onChange={(lat, lng) => setFormData(prev => ({ ...prev, latitude: lat, longitude: lng }))}
+                    />
+                    <div className="grid grid-cols-2 gap-4 mt-4">
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-black text-muted-foreground uppercase">Latitude</label>
+                        <input 
+                          type="number" step="any" readOnly
+                          className="w-full bg-muted/50 border border-border rounded-xl px-4 py-2 text-xs font-mono"
+                          value={formData.latitude || ''}
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-black text-muted-foreground uppercase">Longitude</label>
+                        <input 
+                          type="number" step="any" readOnly
+                          className="w-full bg-muted/50 border border-border rounded-xl px-4 py-2 text-xs font-mono"
+                          value={formData.longitude || ''}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-4 border-t border-border/50">
+                    <label className="text-sm font-bold text-foreground">รัศมีที่อนุญาตสำหรับการลงทะเบียนเข้าร่วม (เมตร)</label>
+                    <input
+                      type="number"
+                      className="text-slate-900 w-full bg-muted/30 border border-border focus:border-primary focus:ring-1 focus:ring-primary rounded-2xl px-4 py-3 transition-all outline-none"
+                      value={formData.checkinRadius}
+                      onChange={(e) => setFormData({ ...formData, checkinRadius: parseInt(e.target.value) })}
+                      placeholder="ค่าเริ่มต้น 200 เมตร"
+                    />
+                    <p className="text-[10px] text-muted-foreground italic mt-1">* นิสิตต้องอยู่ในรัศมีนี้จึงจะสามารถลงทะเบียนเข้าร่วมได้สำเร็จ</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Card>
+
+          {/* Section 4: Skills */}
           <Card className="p-8 border-border relative overflow-hidden group">
             <h3 className="text-lg font-black text-foreground mb-8 uppercase  italic flex items-center">
-              <span className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center mr-3 text-sm not-italic">3</span>
+              <span className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center mr-3 text-sm not-italic">4</span>
               ทักษะและผลการเรียนรู้
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -554,10 +641,10 @@ export default function EditActivityPage() {
             </div>
           </Card>
 
-          {/* Section 4: Faculty Restrictions */}
+          {/* Section 5: Faculty Restrictions */}
           <Card className="p-8 border-border relative overflow-hidden group">
             <h3 className="text-lg font-black text-foreground mb-8 uppercase  italic flex items-center">
-              <span className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center mr-3 text-sm not-italic">4</span>
+              <span className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center mr-3 text-sm not-italic">5</span>
               สิทธิ์การสมัคร (คณะ)
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -578,11 +665,11 @@ export default function EditActivityPage() {
             <p className="mt-4 text-[10px] text-muted-foreground italic">* หากไม่ระบุจะสมัครได้ทุกคณะ</p>
           </Card>
 
-          {/* Section 5: Attachments */}
+          {/* Section 6: Attachments */}
           <Card className="p-8 border-border relative overflow-hidden group">
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-lg font-black text-foreground uppercase  italic flex items-center">
-                <span className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center mr-3 text-sm not-italic">5</span>
+                <span className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center mr-3 text-sm not-italic">6</span>
                 เอกสารแนบ (Attachments)
               </h3>
               <button

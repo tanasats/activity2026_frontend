@@ -60,5 +60,12 @@ export const activityService = {
   updateAttachment: async (attachmentId: string | number, data: { displayName?: string, isPublished?: boolean }) => {
     const response = await axiosInstance.patch(`/activities/attachments/${attachmentId}`, data);
     return response.data;
+  },
+
+  selfieCheckin: async (activityId: string | number, data: FormData) => {
+    const response = await axiosInstance.post(`/activities/${activityId}/selfie-checkin`, data, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
   }
 };

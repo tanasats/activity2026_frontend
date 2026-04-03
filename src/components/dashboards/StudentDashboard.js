@@ -60,7 +60,7 @@ const StudentDashboard = ({ data }) => {
           <div className="p-6 border-b border-border flex justify-between items-center">
             <h3 className="font-bold text-foreground flex items-center">
               <Layout className="mr-2 text-primary" size={20} />
-              รายการที่คุณลงทะเบียนแล้ว
+              รายการกิจกรรมที่คุณสมัครเข้าร่วมแล้ว
             </h3>
             <Link href="/transcript" className="text-xs text-primary font-bold hover:underline flex items-center uppercase tracking-wider">
               ดูทั้งหมด <ArrowRight size={14} className="ml-1" />
@@ -83,7 +83,7 @@ const StudentDashboard = ({ data }) => {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1.5 justify-end max-w-[50%]">
-                    <Badge variant="primary" className="text-[9px] px-2 py-0.5 rounded-lg font-black uppercase">ลงทะเบียน</Badge>
+                    <Badge variant="primary" className="text-[9px] px-2 py-0.5 rounded-lg font-black uppercase">สมัครแล้ว</Badge>
                     {reg.is_attended && (
                       <Badge variant="success" className="text-[9px] px-2 py-0.5 rounded-lg font-black uppercase">เข้าร่วม</Badge>
                     )}
@@ -98,7 +98,7 @@ const StudentDashboard = ({ data }) => {
               ))
             ) : (
               <div className="p-12 text-center">
-                <p className="text-muted-foreground italic font-medium">คุณยังไม่ได้ลงทะเบียนกิจกรรมใดๆ</p>
+                <p className="text-muted-foreground italic font-medium">คุณยังไม่ได้สมัครเข้าร่วมกิจกรรมใดๆ</p>
               </div>
             )}
           </div>

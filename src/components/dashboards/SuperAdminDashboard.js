@@ -19,7 +19,7 @@ const SuperAdminDashboard = ({ data }) => {
   const { stats, facultyDistribution = [], roleDistribution = [] } = data || {};
 
   const getRoleLabel = (role) => {
-    switch(role) {
+    switch (role) {
       case 'student': return 'นิสิต';
       case 'officer': return 'เจ้าหน้าที่';
       case 'admin': return 'ผู้ดูแลระบบ';
@@ -124,36 +124,49 @@ const SuperAdminDashboard = ({ data }) => {
             </div>
 
             <div className="flex flex-wrap gap-4">
-               {roleDistribution.map((role, idx) => (
-                 <div key={idx} className="flex-1 min-w-[150px] bg-muted/30 p-4 rounded-3xl border border-border/50 flex flex-col items-center justify-center">
-                    <span className="text-2xl font-black text-foreground">{role.count}</span>
-                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter mt-1">{getRoleLabel(role.role)}</span>
-                 </div>
-               ))}
+              {roleDistribution.map((role, idx) => (
+                <div key={idx} className="flex-1 min-w-[150px] bg-muted/30 p-4 rounded-3xl border border-border/50 flex flex-col items-center justify-center">
+                  <span className="text-2xl font-black text-foreground">{role.count}</span>
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter mt-1">{getRoleLabel(role.role)}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Sidebar Actions */}
         <div className="space-y-6">
-          <div className="bg-slate-950 p-8 rounded-[3rem] text-white shadow-2xl relative group overflow-hidden border border-white/5">
+          <div className="bg-white p-8 rounded-[3rem] text-foreground  relative group overflow-hidden border border-border">
             <div className="relative z-10">
               <h3 className="text-xl font-black mb-8 flex items-center uppercase tracking-widest italic text-primary">
                 <ShieldCheck size={24} className="mr-3" />
                 SYSTEM ROOT
               </h3>
-              
+
               <div className="space-y-4">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">Management Modules</p>
-                
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2">Management Modules</p>
+
                 <Link href="/manage" className="flex items-center justify-between w-full p-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-[2rem] transition-all group/item">
                   <div className="flex items-center space-x-4">
                     <div className="p-2 bg-amber-500/20 rounded-xl text-amber-500">
-                        <Layout size={18} />
+                      <Layout size={18} />
                     </div>
                     <div>
-                        <p className="text-xs font-black uppercase tracking-widest">Approve Activities</p>
-                        <p className="text-[10px] text-white/40 font-bold uppercase mt-0.5">{stats?.pending} Pending</p>
+                      <p className="text-xs font-black uppercase tracking-widest">จัดการกิจกรรม</p>
+                    </div>
+                  </div>
+                  <ChevronRight size={18} className="text-white/20 group-hover/item:translate-x-1 transition-transform" />
+                </Link>
+
+
+                <Link href="/manage" className="flex items-center justify-between w-full p-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-[2rem] transition-all group/item">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-2 bg-amber-500/20 rounded-xl text-amber-500">
+                      <Layout size={18} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-widest">Approve Activities</p>
+                      <p className="text-[10px] font-bold uppercase mt-0.5">{stats?.pending} Pending</p>
                     </div>
                   </div>
                   <ChevronRight size={18} className="text-white/20 group-hover/item:translate-x-1 transition-transform" />
@@ -162,24 +175,24 @@ const SuperAdminDashboard = ({ data }) => {
                 <Link href="/users" className="flex items-center justify-between w-full p-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-[2rem] transition-all group/item">
                   <div className="flex items-center space-x-4">
                     <div className="p-2 bg-indigo-500/20 rounded-xl text-indigo-500">
-                        <Users size={18} />
+                      <Users size={18} />
                     </div>
                     <div>
-                        <p className="text-xs font-black uppercase tracking-widest">User Directory</p>
-                        <p className="text-[10px] text-white/40 font-bold uppercase mt-0.5">{stats?.totalUsers} Accounts</p>
+                      <p className="text-xs font-black uppercase tracking-widest">User Directory</p>
+                      <p className="text-[10px] font-bold uppercase mt-0.5">{stats?.totalUsers} Accounts</p>
                     </div>
                   </div>
                   <ChevronRight size={18} className="text-white/20 group-hover/item:translate-x-1 transition-transform" />
                 </Link>
               </div>
 
-              <div className="mt-8 pt-8 border-t border-white/10">
-                 <button className="w-full py-4 bg-primary text-primary-foreground rounded-[1.5rem] font-black uppercase tracking-widest text-[10px] hover:shadow-[0_0_20px_rgba(var(--primary),0.4)] transition-all">
-                    System Configuration
-                 </button>
-              </div>
+              {/* <div className="mt-8 pt-8 border-t border-white/10">
+                <button className="w-full py-4 bg-primary text-primary-foreground rounded-[1.5rem] font-black uppercase tracking-widest text-[10px] hover:shadow-[0_0_20px_rgba(var(--primary),0.4)] transition-all">
+                  System Configuration
+                </button>
+              </div> */}
             </div>
-            
+
             {/* Design accents */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-[100px]" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[100px]" />
@@ -191,20 +204,20 @@ const SuperAdminDashboard = ({ data }) => {
 };
 
 const ChevronRight = ({ size, className }) => (
-    <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        width={size} 
-        height={size} 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round" 
-        className={className}
-    >
-        <path d="m9 18 6-6-6-6"/>
-    </svg>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="m9 18 6-6-6-6" />
+  </svg>
 );
 
 export default SuperAdminDashboard;

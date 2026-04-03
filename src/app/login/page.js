@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Button } from '@/components/ui/Button';
-import { LogIn, Chrome, Sparkles } from 'lucide-react';
+import { LogIn, Chrome, Sparkles, Home } from 'lucide-react';
+import Link from 'next/link';
 import toast from 'react-hot-toast';
 
 export default function LoginPage() {
@@ -52,15 +53,17 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-4 mt-12 relative z-10">
-            <div className="flex items-center space-x-4 bg-white/10 backdrop-blur-md p-5 rounded-3xl border border-white/10 hover:bg-white/20 transition-all cursor-default group">
-              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Chrome size={24} />
+            <Link href="/">
+              <div className="flex items-center space-x-4 bg-white/10 backdrop-blur-md p-5 rounded-3xl border border-white/10 hover:bg-white/20 transition-all cursor-default group">
+                <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Home size={24} />
+                </div>
+                <div>
+                  <h4 className="font-black uppercase text-[10px] tracking-widest text-primary-foreground/60">กลับหน้าหลัก</h4>
+                  <p className="text-sm font-bold">หน้าแรก</p>
+                </div>
               </div>
-              <div>
-                <h4 className="font-black uppercase text-[10px] tracking-widest text-primary-foreground/60">Fast Access</h4>
-                <p className="text-sm font-bold">Google OAuth Integration</p>
-              </div>
-            </div>
+            </Link>
           </div>
 
           {/* Background pattern */}
