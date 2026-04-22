@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { activityService } from '@/services/activityService';
+import Image from 'next/image';
+
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { getImageUrl } from '@/lib/utils';
@@ -97,13 +99,11 @@ export default function ActivitiesPage() {
                className="w-full aspect-[16/9] overflow-hidden bg-muted relative cursor-zoom-in"
                onClick={() => setSelectedImage(getImageUrl(activity.cover_image, 'cover'))}
              >
-                <img 
-                  src={getImageUrl(activity.cover_image, 'cover')} 
+                <Image
+                  src={getImageUrl(activity.cover_image, 'cover')}
                   alt={activity.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                  onError={(e) => {
-                    e.target.src = '/images/cover-image.jpg';
-                  }}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-60" />
                 <Badge 
@@ -196,10 +196,11 @@ export default function ActivitiesPage() {
           <button className="absolute top-10 right-10 text-white/50 hover:text-white transition-colors bg-white/10 p-2 rounded-full">
             <X size={32} />
           </button>
-          <img 
-            src={selectedImage} 
-            className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300" 
-            alt="Preview" 
+          <Image
+            src={selectedImage}
+            alt="Preview"
+            fill
+            className="object-contain rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300"
           />
         </div>
       )}

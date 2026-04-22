@@ -70,7 +70,7 @@ export default function MapPicker({ lat, lng, onChange }) {
       }
     });
 
-  }, [mounted, onChange]);
+  }, [mounted, onChange, lat, lng]);
 
   // Handle external lat/lng changes (e.g. initial load from activity data)
   useEffect(() => {

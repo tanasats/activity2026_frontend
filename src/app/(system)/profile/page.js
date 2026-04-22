@@ -1,6 +1,8 @@
 'use client';
 
 import { useAuthStore } from '@/store/useAuthStore';
+import Image from 'next/image';
+
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -114,10 +116,11 @@ export default function ProfilePage() {
           <div className="flex flex-col md:flex-row items-center md:items-end space-y-6 md:space-y-0 md:space-x-10">
             <div className="relative group">
               <div className="absolute inset-0 bg-primary/20 rounded-[2.5rem] blur-2xl group-hover:scale-110 transition-transform duration-500" />
-              <img
+              <Image
                 src={getImageUrl(previewImage)}
                 alt="Profile"
-                className={`w-40 h-40 rounded-[2.5rem] border-4 border-card shadow-2xl object-cover relative z-10 transition-all duration-500 ${editing ? 'cursor-pointer hover:brightness-75 scale-[1.02]' : ''}`}
+                fill
+                className={`rounded-[2.5rem] border-4 border-card shadow-2xl object-cover relative z-10 transition-all duration-500 ${editing ? 'cursor-pointer hover:brightness-75 scale-[1.02]' : ''}`}
                 onClick={handleImageClick}
               />
               <input

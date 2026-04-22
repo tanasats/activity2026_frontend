@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/Card';
+import Image from 'next/image';
+
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Badge } from '@/components/ui/Badge';
@@ -22,7 +24,8 @@ import {
   Mail,
   Shield,
   Building2,
-  Calendar
+  Calendar,
+  X
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
@@ -33,6 +36,7 @@ export default function UserManagementPage() {
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
 
   // Filters
@@ -60,7 +64,7 @@ export default function UserManagementPage() {
         role: roleFilter,
         facultyCode: facultyFilter,
         page: currentPage,
-        limit: 10
+        limit: pageSize
       });
       setUsers(data.users);
       setTotalPages(data.totalPages);
@@ -71,7 +75,11 @@ export default function UserManagementPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, roleFilter, facultyFilter, currentPage]);
+  }, [search, roleFilter, facultyFilter, currentPage, pageSize]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [pageSize]);
 
   useEffect(() => {
     fetchUsers();
@@ -157,8 +165,35 @@ export default function UserManagementPage() {
     }
   };
 
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+    
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      let start = Math.max(1, currentPage - 2);
+      let end = Math.min(totalPages, start + 4);
+      
+      if (end === totalPages) start = Math.max(1, end - 4);
+      
+      if (start > 1) {
+        pages.push(1);
+        if (start > 2) pages.push('...');
+      }
+      
+      for (let i = start; i <= end; i++) pages.push(i);
+      
+      if (end < totalPages) {
+        if (end < totalPages - 1) pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black text-foreground tracking-tight flex items-center uppercase italic">
@@ -171,7 +206,7 @@ export default function UserManagementPage() {
         </div>
       </div>
 
-      <Card className="p-6 border-border/40 shadow-sm overflow-visible bg-card/50 backdrop-blur-sm">
+      <Card className="p-6 border-border/40 shadow-sm overflow-visible bg-card/50 backdrop-blur-sm rounded-[2rem]">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="relative md:col-span-2">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
@@ -179,7 +214,7 @@ export default function UserManagementPage() {
               placeholder="ค้นหาด้วยชื่อ, นามสกุล, อีเมล หรือ Username..."
               value={search}
               onChange={handleSearch}
-              className="pl-12 bg-muted/50 border-none ring-1 ring-border focus:ring-2 focus:ring-primary/20"
+              className="pl-12 bg-muted/50 border-none ring-1 ring-border focus:ring-2 focus:ring-primary/20 rounded-xl"
             />
           </div>
 
@@ -188,7 +223,7 @@ export default function UserManagementPage() {
             <select
               value={roleFilter}
               onChange={handleRoleFilter}
-              className="w-full pl-12 pr-4 py-2.5 bg-muted/50 border-none ring-1 ring-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/20 appearance-none outline-none"
+              className="w-full pl-12 pr-4 py-2.5 bg-muted/50 border-none ring-1 ring-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/20 appearance-none outline-none text-sm font-bold"
             >
               <option value="">ทุกบทบาท (Roles)</option>
               <option value="student">นิสิต (Student)</option>
@@ -204,7 +239,7 @@ export default function UserManagementPage() {
             <select
               value={facultyFilter}
               onChange={handleFacultyFilter}
-              className="w-full pl-12 pr-4 py-2.5 bg-muted/50 border-none ring-1 ring-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/20 appearance-none outline-none"
+              className="w-full pl-12 pr-4 py-2.5 bg-muted/50 border-none ring-1 ring-border rounded-xl text-foreground focus:ring-2 focus:ring-primary/20 appearance-none outline-none text-sm font-bold"
             >
               <option value="">ทุกหน่วยงาน/คณะ</option>
               {faculties.map(fac => (
@@ -214,7 +249,7 @@ export default function UserManagementPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-[1.5rem] border border-border shadow-inner bg-card">
+        <div className="overflow-x-auto rounded-[1.5rem] border border-border shadow-inner bg-card mb-6">
           <table className="w-full text-left border-collapse min-w-[800px]">
             <thead>
               <tr className="bg-muted/50 border-b border-border">
@@ -242,11 +277,15 @@ export default function UserManagementPage() {
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-bold overflow-hidden border border-primary/20">
                           {u.profile_image ? (
-                            <img
-                              src={getImageUrl(u.profile_image)}
-                              alt={u.username}
-                              className="w-full h-full object-cover"
-                            />
+                            <div className="relative w-full h-full">
+                              <Image
+                                src={getImageUrl(u.profile_image)}
+                                alt={u.username}
+                                fill
+                                sizes="40px"
+                                className="object-cover"
+                              />
+                            </div>
                           ) : (
                             <Users size={18} />
                           )}
@@ -305,48 +344,70 @@ export default function UserManagementPage() {
           </table>
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-8 flex items-center justify-between">
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest pl-4">
-              หน้า {currentPage} จาก {totalPages}
-            </p>
-            <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1 || loading}
-                className="rounded-xl px-4 py-5"
+        {/* Pagination & Rows per page */}
+        <div className="mt-8 flex flex-col md:flex-row items-center justify-between gap-6 px-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">แสดง</span>
+              <select
+                value={pageSize}
+                onChange={(e) => setPageSize(Number(e.target.value))}
+                className="bg-muted/50 border border-border rounded-lg text-xs font-bold py-1 px-2 outline-none focus:ring-2 focus:ring-primary/20"
               >
-                <ChevronLeft size={18} className="mr-1" /> ก่อนหน้า
-              </Button>
-              <div className="flex space-x-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
+              </select>
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">รายการต่อหน้า</span>
+            </div>
+            <div className="h-4 w-px bg-border mx-2 hidden md:block" />
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+               กำลังแสดง {(currentPage - 1) * pageSize + 1} - {Math.min(currentPage * pageSize, totalCount)} จากทั้งหมด {totalCount} รายการ
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1 || loading}
+              className="rounded-xl px-3 py-5 border-border/60 hover:bg-muted transition-all"
+            >
+              <ChevronLeft size={16} />
+            </Button>
+            
+            <div className="flex items-center gap-1">
+              {getPageNumbers().map((p, idx) => (
+                p === '...' ? (
+                  <span key={`ellipsis-${idx}`} className="w-9 text-center text-muted-foreground font-black">...</span>
+                ) : (
                   <button
                     key={p}
                     onClick={() => setCurrentPage(p)}
-                    className={`w-10 h-10 rounded-xl font-bold text-xs transition-all ${currentPage === p
+                    className={`w-9 h-9 rounded-xl font-bold text-xs transition-all ${currentPage === p
                       ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                      : 'border border-border text-muted-foreground hover:bg-muted'
+                      : 'border border-border/40 text-muted-foreground hover:bg-muted font-black'
                       }`}
                   >
                     {p}
                   </button>
-                ))}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages || loading}
-                className="rounded-xl px-4 py-5"
-              >
-                ถัดไป <ChevronRight size={18} className="ml-1" />
-              </Button>
+                )
+              ))}
             </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages || loading}
+              className="rounded-xl px-3 py-5 border-border/60 hover:bg-muted transition-all"
+            >
+              <ChevronRight size={16} />
+            </Button>
           </div>
-        )}
+        </div>
       </Card>
 
       {/* Edit User Modal */}
@@ -362,38 +423,44 @@ export default function UserManagementPage() {
                 <p className="text-primary-foreground/70 text-[10px] font-black uppercase tracking-widest mt-1">ID: #{selectedUser?.id} | {selectedUser?.email}</p>
               </div>
               <button onClick={() => setIsEditModalOpen(false)} className="bg-white/10 hover:bg-white/20 p-2 rounded-2xl transition-all">
-                <Shield size={20} />
+                <X size={20} />
               </button>
             </div>
 
             <form onSubmit={handleEditSubmit} className="p-8 space-y-6">
               <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">ชื่อ (First Name)</label>
+                  <Input
+                    value={editFormData.firstname}
+                    onChange={(e) => setEditFormData({ ...editFormData, firstname: e.target.value })}
+                    className="bg-muted/30 border-none ring-1 ring-border rounded-xl"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">นามสกุล (Last Name)</label>
+                  <Input
+                    value={editFormData.lastname}
+                    onChange={(e) => setEditFormData({ ...editFormData, lastname: e.target.value })}
+                    className="bg-muted/30 border-none ring-1 ring-border rounded-xl"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Display Name / Username</label>
                 <Input
-                  label="ชื่อ (First Name)"
-                  value={editFormData.firstname}
-                  onChange={(e) => setEditFormData({ ...editFormData, firstname: e.target.value })}
-                  className="bg-muted/30 border-none ring-1 ring-border"
-                  required
-                />
-                <Input
-                  label="นามสกุล (Last Name)"
-                  value={editFormData.lastname}
-                  onChange={(e) => setEditFormData({ ...editFormData, lastname: e.target.value })}
-                  className="bg-muted/30 border-none ring-1 ring-border"
+                  value={editFormData.username}
+                  onChange={(e) => setEditFormData({ ...editFormData, username: e.target.value })}
+                  className="bg-muted/30 border-none ring-1 ring-border rounded-xl"
                   required
                 />
               </div>
 
-              <Input
-                label="Display Name / Username"
-                value={editFormData.username}
-                onChange={(e) => setEditFormData({ ...editFormData, username: e.target.value })}
-                className="bg-muted/30 border-none ring-1 ring-border"
-                required
-              />
-
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center ml-1">
                   <Shield size={14} className="mr-2" /> กำหนดบทบาทในระบบ
                 </label>
                 <select
@@ -411,7 +478,7 @@ export default function UserManagementPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center ml-1">
                   <Building2 size={14} className="mr-2" /> สังกัดหน่วยงาน/คณะ
                 </label>
                 <select
@@ -431,14 +498,14 @@ export default function UserManagementPage() {
                   type="button"
                   variant="outline"
                   onClick={() => setIsEditModalOpen(false)}
-                  className="flex-1 py-6 rounded-2xl"
+                  className="flex-1 py-6 rounded-2xl font-black uppercase tracking-widest text-[10px]"
                 >
                   ยกเลิก
                 </Button>
                 <Button
                   type="submit"
                   variant="primary"
-                  className="flex-1 py-6 rounded-2xl font-black uppercase tracking-widest text-xs"
+                  className="flex-1 py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-primary/20"
                 >
                   บันทึกการเปลี่ยนแปลง
                 </Button>

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
+
 import { activityService } from '@/services/activityService';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -157,13 +159,12 @@ export default function ActivityDetailPage() {
             <Card className="p-0 border-border relative overflow-hidden">
               {/* Cover Image Header */}
               <div className="w-full aspect-[21/9] overflow-hidden relative border-b border-border bg-muted">
-                <img
+                <Image
                   src={getImageUrl(activity.cover_image, 'cover')}
                   alt={activity.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.src = '/images/cover-image.jpg';
-                  }}
+                  fill
+                  priority
+                  className="object-cover"
                 />
                 {/* <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" /> */}
               </div>

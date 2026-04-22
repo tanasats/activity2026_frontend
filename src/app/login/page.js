@@ -97,7 +97,7 @@ export default function LoginPage() {
 
             <div className="space-y-4">
               <p className="text-center text text-muted-foreground font-medium leading-relaxed italic">
-                "กิจกรรมนิสิต คือส่วนหนึ่งของการเรียนรู้ที่สมบูรณ์"<br />
+                &quot;กิจกรรมนิสิต คือส่วนหนึ่งของการเรียนรู้ที่สมบูรณ์&quot;<br />
                 - ฝ่ายพัฒนานิสิต มหาวิทยาลัยมหาสารคาม
               </p>
             </div>

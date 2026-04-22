@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+
 import { useParams, useRouter } from 'next/navigation';
 import {
   ChevronLeft,
@@ -62,12 +64,7 @@ export default function RegistrationDetailPage() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-    fetchImages();
-  }, [id]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const data = await registrationService.getRegistrationById(id);
@@ -79,16 +76,21 @@ export default function RegistrationDetailPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, router]);
 
-  const fetchImages = async () => {
+  const fetchImages = useCallback(async () => {
     try {
       const data = await registrationService.getImages(id);
       setImages(data);
     } catch (error) {
       console.error('Fetch images error:', error);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchData();
+    fetchImages();
+  }, [fetchData, fetchImages]);
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
@@ -161,11 +163,12 @@ export default function RegistrationDetailPage() {
         {/* Left Column: QR Code & Status */}
         <div className="lg:col-span-2 space-y-6">
           <Card className="p-8 border-primary/20 bg-primary/[0.02] flex flex-col items-center justify-center shadow-2xl shadow-primary/5 rounded-[3rem]">
-            <div className="bg-white p-4 rounded-3xl shadow-inner border border-primary/10 mb-6">
-              <img
+            <div className="bg-white p-4 rounded-3xl shadow-inner border border-primary/10 mb-6 relative w-full aspect-square max-w-[200px]">
+              <Image
                 src={qrImageUrl}
                 alt="Registration QR Code"
-                className="w-full aspect-square max-w-[200px]"
+                fill
+                className="p-4"
               />
             </div>
             <div className="text-center">
@@ -231,7 +234,7 @@ export default function RegistrationDetailPage() {
               </div>
 
               <p className="text-[9px] text-center text-muted-foreground italic leading-tight">
-                * โปรดมั่นใจว่าคุณได้เปิดสิทธิ์ "Location Access" สำหรับแอพกล้องถ่ายรูปของคุณ และไฟล์ภาพมีข้อมูล GPS (EXIF)
+                * โปรดมั่นใจว่าคุณได้เปิดสิทธิ์ &quot;Location Access&quot; สำหรับแอพกล้องถ่ายรูปของคุณ และไฟล์ภาพมีข้อมูล GPS (EXIF)
               </p>
             </Card>
           )}
@@ -274,10 +277,11 @@ export default function RegistrationDetailPage() {
               <div className="grid grid-cols-3 gap-3">
                 {images.map((img) => (
                   <div key={img.id} className="relative group aspect-square rounded-2xl overflow-hidden border border-border shadow-sm">
-                    <img
+                    <Image
                       src={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000'}${img.image_path}`}
                       alt="Evidence"
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <button

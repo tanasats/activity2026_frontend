@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+
 import {
   Plus,
   ChevronLeft,
@@ -255,10 +257,11 @@ export default function NewActivityPage() {
 
                   {previewImage ? (
                     <div className="relative aspect-video rounded-2xl overflow-hidden shadow-lg">
-                      <img
+                      <Image
                         src={previewImage}
                         alt="Cover Preview"
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <p className="text-white font-black uppercase  text-xs">เปลี่ยนรูปภาพ</p>

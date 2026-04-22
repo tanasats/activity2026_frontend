@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { useAuthStore } from '@/store/useAuthStore';
+import Image from 'next/image';
+
 import { Button } from '@/components/ui/Button';
 import { getImageUrl } from '@/lib/utils';
 import { LayoutGrid, LogIn, Sparkles, User } from 'lucide-react';
@@ -32,11 +34,15 @@ export default function PublicNavbar() {
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <Link href="/dashboard" className="flex items-center space-x-3 p-1.5 pr-4 bg-muted/50 rounded-full border border-border hover:bg-muted transition-all group">
-                <img
-                  src={getImageUrl(user?.profile_image)}
-                  alt="Profile"
-                  className="w-8 h-8 rounded-full border border-card group-hover:scale-105 transition-transform"
-                />
+                <div className="relative w-8 h-8">
+                  <Image
+                    src={getImageUrl(user?.profile_image)}
+                    alt="Profile"
+                    fill
+                    sizes="32px"
+                    className="rounded-full border border-card group-hover:scale-105 transition-transform object-cover"
+                  />
+                </div>
                 <span className="text-xs font-black uppercase tracking-wider text-foreground">
                   Dashboard
                 </span>

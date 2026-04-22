@@ -214,7 +214,7 @@ export default function CheckInPage() {
                   {!scanning && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground gap-4">
                       <QrCode size={60} className="opacity-20 translate-y-2" />
-                      <p className="font-black uppercase tracking-widest text-xs opacity-40 italic">กดปุ่ม "เริ่มสแกน QR" เพื่อเปิดกล้อง</p>
+                      <p className="font-black uppercase tracking-widest text-xs opacity-40 italic">กดปุ่ม &quot;เริ่มสแกน QR&quot; เพื่อเปิดกล้อง</p>
                     </div>
                   )}
                 </div>

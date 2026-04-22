@@ -68,9 +68,9 @@ const OfficerDashboard = ({ data }) => {
         {/* Recent My Activities */}
         <div className="bg-card rounded-[2.5rem] border border-border shadow-sm overflow-hidden">
           <div className="p-6 border-b border-border flex justify-between items-center">
-            <h3 className="font-black text-foreground flex items-center uppercase tracking-wider text-xs">
+            <h3 className="text-foreground flex items-center uppercase tracking-wider">
               <Briefcase className="mr-2 text-primary" size={18} />
-              กิจกรรมที่ดำเนินการอยู่
+              กิจกรรมของฉัน
             </h3>
             <Link href="/manage" className="text-[10px] text-primary font-black hover:bg-primary/5 px-4 py-2 rounded-xl transition-all border border-primary/10 uppercase">
               จัดการทั้งหมด
@@ -101,9 +101,9 @@ const OfficerDashboard = ({ data }) => {
         {/* Recently Added in Faculty */}
         <div className="bg-card rounded-[2.5rem] border border-border shadow-sm overflow-hidden">
           <div className="p-6 border-b border-border">
-            <h3 className="font-black text-foreground flex items-center uppercase tracking-wider text-xs">
+            <h3 className="text-foreground flex items-center uppercase tracking-wider">
               <BarChart3 className="mr-2 text-indigo-500" size={18} />
-              ความเคลื่อนไหวในคณะ
+              กิจกรรมของคณะ
             </h3>
           </div>
           <div className="divide-y divide-border">

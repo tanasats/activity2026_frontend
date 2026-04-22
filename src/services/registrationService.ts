@@ -4,8 +4,8 @@ export const registrationService = {
   /**
    * Get all participants for an activity (Management)
    */
-  getParticipants: async (activityId: string | number) => {
-    const response = await axiosInstance.get(`/activities/${activityId}/participants`);
+  getParticipants: async (activityId: string | number, params?: any) => {
+    const response = await axiosInstance.get(`/activities/${activityId}/participants`, { params });
     return response.data;
   },
 
@@ -47,7 +47,18 @@ export const registrationService = {
     return response.data;
   },
 
+  importParticipants: async (activityId: string, studentCodes: string[]) => {
+    const response = await axiosInstance.post(`/activities/${activityId}/participants/import`, { studentCodes });
+    return response.data;
+  },
+
+  deleteParticipant: async (registrationId: number) => {
+    const response = await axiosInstance.delete(`/activities/participants/${registrationId}`);
+    return response.data;
+  },
+
   getExportUrl: (activityId: string | number) => {
+
     const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
     return `${baseURL}/activities/${activityId}/participants/export`;
   }

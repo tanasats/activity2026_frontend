@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { activityService } from '@/services/activityService';
+import Image from 'next/image';
+
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -138,10 +140,11 @@ export default function LandingPage() {
                   className="w-full aspect-[16/10] overflow-hidden bg-muted relative cursor-zoom-in"
                   onClick={() => setSelectedImage(getImageUrl(activity.cover_image, 'cover'))}
                 >
-                  <img
+                  <Image
                     src={getImageUrl(activity.cover_image, 'cover')}
                     alt={activity.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-80 pointer-events-none" />
                   <Badge
@@ -277,10 +280,11 @@ export default function LandingPage() {
           <button className="absolute top-10 right-10 text-white/50 hover:text-white transition-colors bg-white/10 p-2 rounded-full">
             <X size={32} />
           </button>
-          <img
+          <Image
             src={selectedImage}
-            className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300"
             alt="Preview"
+            fill
+            className="object-contain rounded-2xl shadow-2xl animate-in zoom-in-95 duration-300"
           />
         </div>
       )}

@@ -2,6 +2,8 @@
 
 import { useAuthStore } from '@/store/useAuthStore';
 import { Menu } from 'lucide-react';
+import Image from 'next/image';
+
 
 const MobileHeader = ({ onMenuClick }) => {
   const { user } = useAuthStore();
@@ -30,11 +32,15 @@ const MobileHeader = ({ onMenuClick }) => {
             {user.faculty_name}
           </p>
         )}
-        <img
-          src={user.profile_image || "https://i.pravatar.cc/150"}
-          alt="Profile"
-          className="w-9 h-9 rounded-full border-2 border-card shadow-sm"
-        />
+        <div className="relative w-9 h-9">
+          <Image
+            src={user.profile_image || "https://i.pravatar.cc/150"}
+            alt="Profile"
+            fill
+            sizes="36px"
+            className="rounded-full border-2 border-card shadow-sm object-cover"
+          />
+        </div>
       </div>
     </header>
   );

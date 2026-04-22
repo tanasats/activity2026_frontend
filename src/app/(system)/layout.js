@@ -7,6 +7,8 @@ import { getImageUrl } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
+import Image from 'next/image';
+
 
 export default function SystemLayout({ children }) {
   const { isAuthenticated, user, logout } = useAuthStore();
@@ -54,11 +56,16 @@ export default function SystemLayout({ children }) {
                 </p>
               )}
             </div>
-            <img
-              src={getImageUrl(user.profile_image)}
-              alt="Profile"
-              className="w-12 h-12 rounded-full border-2 border-card shadow-sm"
-            />
+            <div className="relative w-12 h-12">
+              <Image
+                src={getImageUrl(user.profile_image)}
+                alt="Profile"
+                fill
+                sizes="48px"
+                className="rounded-full border-2 border-card shadow-sm object-cover"
+              />
+            </div>
+
           </div>
         </header>
 
